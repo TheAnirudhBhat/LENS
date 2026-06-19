@@ -1,0 +1,343 @@
+@import "tailwindcss";
+
+/* Slice DLS 2.0 tokens — light mode default */
+:root {
+  --bg-base: #fafafa;
+  --bg-card: #ffffff;
+  --bg-subtle: #f4f4f5;
+  --bg-raised: #ffffff;
+
+  --border: rgba(0, 0, 0, 0.08);
+  --border-strong: rgba(0, 0, 0, 0.14);
+
+  /* slice DLS text: alpha on black */
+  --text-primary: rgba(0, 0, 0, 0.9);
+  --text-secondary: rgba(0, 0, 0, 0.7);
+  --text-tertiary: rgba(0, 0, 0, 0.5);
+  --text-disabled: rgba(0, 0, 0, 0.3);
+
+  /* slice brand — magenta */
+  --brand: #d30ad7;
+  --brand-soft: #e044e4;
+  --brand-fg: #ffffff;
+  --brand-tint: rgba(211, 10, 215, 0.06);
+
+  /* semantic */
+  --pos: #0f9d58;
+  --pos-tint: rgba(15, 157, 88, 0.08);
+  --neg: #d93025;
+  --neg-tint: rgba(217, 48, 37, 0.08);
+  --warn: #f4b400;
+  --warn-tint: rgba(244, 180, 0, 0.1);
+
+  /* DLS typography */
+  --font-sans: var(--font-rubik), ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-display: var(--font-serif), ui-serif, Georgia, "Times New Roman", serif;
+
+  color-scheme: light;
+}
+
+:root.dark {
+  --bg-base: #0a0a0a;
+  --bg-card: #161616;
+  --bg-subtle: #1f1f1f;
+  --bg-raised: #18181b;
+
+  --border: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.14);
+
+  --text-primary: rgba(255, 255, 255, 0.92);
+  --text-secondary: rgba(255, 255, 255, 0.7);
+  --text-tertiary: rgba(255, 255, 255, 0.5);
+  --text-disabled: rgba(255, 255, 255, 0.3);
+
+  --brand: #e55df0;
+  --brand-soft: #d30ad7;
+  --brand-fg: #ffffff;
+  --brand-tint: rgba(229, 93, 240, 0.1);
+
+  --pos: #34d399;
+  --pos-tint: rgba(52, 211, 153, 0.1);
+  --neg: #f87171;
+  --neg-tint: rgba(248, 113, 113, 0.1);
+  --warn: #fbbf24;
+  --warn-tint: rgba(251, 191, 36, 0.12);
+
+  color-scheme: dark;
+}
+
+html, body {
+  overscroll-behavior: none;
+}
+
+body {
+  font-family: var(--font-sans);
+  background: var(--bg-base);
+  color: var(--text-primary);
+}
+
+:root.dark body {
+  background-image:
+    radial-gradient(80% 50% at 50% 0%, rgba(211, 10, 215, 0.05), transparent 60%);
+  background-repeat: no-repeat;
+}
+
+/* slice DLS type scale */
+.type-h1 { font-size: 32px; line-height: 40px; font-weight: 600; letter-spacing: -0.02em; }
+.type-h2 { font-size: 24px; line-height: 32px; font-weight: 500; letter-spacing: -0.01em; }
+.type-h3 { font-size: 20px; line-height: 24px; font-weight: 500; }
+.type-h4 { font-size: 16px; line-height: 20px; font-weight: 500; }
+.type-body { font-size: 16px; line-height: 24px; font-weight: 400; }
+.type-body-sm { font-size: 14px; line-height: 20px; font-weight: 400; }
+.type-caption { font-size: 12px; line-height: 16px; font-weight: 400; }
+.type-meta { font-size: 11px; line-height: 14px; font-weight: 500; letter-spacing: 0; }
+
+.mono {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
+
+/* DLS typography
+   Product UI uses Rubik. Source Serif is reserved for the brand wordmark and
+   rare editorial/display accents. Numeric text stays in Rubik with tabular
+   figures so the app uses only these two font families. */
+.font-sans {
+  font-family: var(--font-sans);
+}
+
+.font-serif {
+  font-family: var(--font-display);
+  font-feature-settings: "ss01", "kern";
+  letter-spacing: -0.01em;
+}
+
+.mono-true {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+  letter-spacing: 0;
+}
+
+/* Cockpit: low-chrome section. Use instead of .surface for mid-density blocks. */
+.cockpit-section {
+  /* No background, no border. Just a hairline rule above for grouping. */
+  border-top: 1px solid var(--border);
+  padding-top: 24px;
+  padding-bottom: 24px;
+}
+
+/* Cockpit: row in a divide-y list. Hover lifts text without painting a background. */
+.cockpit-row {
+  transition: color 120ms ease-out;
+  border-bottom: 1px solid var(--border);
+}
+.cockpit-row:last-child {
+  border-bottom: none;
+}
+.cockpit-row:hover {
+  color: var(--text-primary);
+}
+.cockpit-row:hover .cockpit-row-meta {
+  color: var(--text-secondary);
+}
+
+/* Section eyebrow — small sentence-case label */
+.eyebrow {
+  font-size: 11px;
+  letter-spacing: 0;
+  text-transform: none;
+  font-weight: 500;
+  color: var(--text-tertiary);
+}
+
+/* Diffusion shadow for the rare cards that DO need elevation */
+.diffuse {
+  box-shadow: 0 24px 48px -28px rgba(0, 0, 0, 0.08),
+              0 4px 16px -8px rgba(0, 0, 0, 0.04);
+}
+:root.dark .diffuse {
+  box-shadow: 0 24px 48px -28px rgba(0, 0, 0, 0.5),
+              0 4px 16px -8px rgba(0, 0, 0, 0.3);
+}
+
+/* Single-accent restraint: focus rings get the slice magenta */
+.accent-ring:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+}
+
+/* Surfaces */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  transition: border-color 150ms ease-out, transform 150ms ease-out, box-shadow 150ms ease-out;
+}
+.card:hover {
+  border-color: color-mix(in srgb, var(--brand) 40%, var(--border));
+  box-shadow: 0 8px 32px -16px color-mix(in srgb, var(--brand) 20%, transparent);
+}
+
+.surface {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+}
+.surface-subtle {
+  background: var(--bg-subtle);
+  border: 1px solid var(--border);
+}
+
+.text-primary { color: var(--text-primary); }
+.text-secondary { color: var(--text-secondary); }
+.text-tertiary { color: var(--text-tertiary); }
+.border-subtle { border-color: var(--border); }
+.divide-subtle > :not([hidden]) ~ :not([hidden]) { border-color: var(--border) !important; }
+
+.text-pos { color: var(--pos); }
+.text-neg { color: var(--neg); }
+.bg-pos-tint { background: var(--pos-tint); }
+.bg-neg-tint { background: var(--neg-tint); }
+
+.btn-accent {
+  background: var(--brand);
+  color: var(--brand-fg);
+  transition: background 150ms ease-out;
+}
+.btn-accent:hover {
+  background: color-mix(in srgb, var(--brand) 85%, black);
+}
+
+.tab-active {
+  background: var(--brand);
+  color: var(--brand-fg);
+}
+.tab-idle {
+  color: var(--text-secondary);
+  transition: background-color 150ms, color 150ms;
+}
+.tab-idle:hover {
+  color: var(--text-primary);
+  background: var(--bg-subtle);
+}
+
+.tab-btn {
+  transition: background-color 150ms ease-out, color 150ms ease-out;
+}
+.tab-btn:focus,
+.tab-btn:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+
+@keyframes ticker-scroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fade-up-soft {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Tab content used to fade-in on remount; with View Transitions API the
+   browser handles the cross-fade + element morph for tagged elements
+   (page-title, page-stats, page-actions in PageHero). Keep the fade as a
+   fallback for browsers without VT support, but bail when transitions run. */
+.tab-content {
+  animation: fade-in 280ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@supports (view-transition-name: none) {
+  .tab-content { animation: none; }
+}
+
+/* Tab switching reads top-to-bottom, so the whole tab body slides in
+   from above with a short fade. Inside it, the 4-stat card is tagged
+   separately so it can morph in place when both pages have one and
+   smoothly slide-fade out / in when only one does. */
+
+@keyframes vt-slide-left-out {
+  0%   { opacity: 1; transform: translate3d(0, 0, 0); }
+  100% { opacity: 0; transform: translate3d(-32px, 0, 0); }
+}
+@keyframes vt-slide-left-in {
+  0%   { opacity: 0; transform: translate3d(40px, 0, 0); }
+  100% { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+
+/* Soft ease-in-out for the whole transition feel. */
+:root {
+  --vt-ease: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Tab body — old fades up & out, new slides in from above. */
+::view-transition-group(tab-content) {
+  animation: none !important;
+}
+::view-transition-image-pair(tab-content) {
+  isolation: auto;
+}
+::view-transition-old(tab-content) {
+  animation: vt-slide-left-out 200ms var(--vt-ease) both;
+}
+::view-transition-new(tab-content) {
+  animation: vt-slide-left-in 320ms var(--vt-ease) 80ms both;
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0ms;
+}
+
+.list-stagger > * {
+  animation: fade-up-soft 520ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: calc(var(--idx, 0) * 40ms);
+}
+
+/* Hide the bottom hairline on the last row of any list, regardless of
+   whether the divider is drawn on the row wrapper itself or on a child
+   button/div using `after:` utilities. Force background to transparent
+   and height to 0 because Tailwind's `after:bg-...` / `after:h-px`
+   utilities can otherwise out-specify `display: none`. */
+.list-stagger > :last-child::after,
+.list-stagger > :last-child > *::after,
+.list-stagger > :last-child > * > *::after {
+  background: transparent !important;
+  background-color: transparent !important;
+  height: 0 !important;
+  display: none !important;
+  content: none !important;
+}
+
+@keyframes modal-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes modal-pop-in {
+  from { opacity: 0; transform: scale(0.96) translateY(6px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.modal-backdrop {
+  animation: modal-fade-in 180ms ease-out both;
+}
+
+.modal-card {
+  animation: modal-pop-in 220ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tab-content, .list-stagger > *, .modal-backdrop, .modal-card { animation: none; }
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}
+
+/* Hide scrollbar but keep scroll behavior — used on modals/overlays */
+.no-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; width: 0; height: 0; }
