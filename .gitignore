@@ -23,7 +23,14 @@
 
 # misc
 .DS_Store
+
+# certs / corporate TLS — never commit (Netskope CA bundle + any private keys)
 *.pem
+*.crt
+*.cer
+*.key
+corp-ca-bundle.pem
+netskope-ca.pem
 
 # debug
 npm-debug.log*
