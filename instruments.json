@@ -1,0 +1,15 @@
+{
+  "_comment": "ISIN reference map. Broker stock/ETF exports use opaque short names (e.g. 'MIRAEAMC - MASPTOP50'), so we map by the stable ISIN to a clean name, trading symbol, asset type, classification category, and exchange. convert_groww.py uses this so classification stays correct and auditable. When you buy a NEW instrument not listed here, the converter still works (it derives EQUITY/ETF from the ISIN prefix and classifies by name) but prints a warning asking you to add an entry here for best accuracy. Valid 'category' values: core_nifty50, core_next50, flexicap, multi_asset_baf, debt_liquid, gold, silver, international_equity, sectoral_thematic, direct_equity_stock, other.",
+  "byIsin": {
+    "INE12UN01015": { "name": "Shadowfax Tech.",                  "symbol": "SHADOWFAX-EQ", "assetType": "EQUITY", "category": "direct_equity_stock", "exchange": "NSE" },
+    "INE509F01029": { "name": "Cupid",                            "symbol": "CUPID-EQ",     "assetType": "EQUITY", "category": "direct_equity_stock", "exchange": "NSE" },
+    "INE758D01027": { "name": "Dhenu Buildcon",                   "symbol": "DHENUBUILD",   "assetType": "EQUITY", "category": "direct_equity_stock", "exchange": "BSE" },
+    "INE827D01020": { "name": "Sri Chakra Cement",               "symbol": "SRICC",        "assetType": "EQUITY", "category": "direct_equity_stock", "exchange": "BSE" },
+    "INF0R8F01091": { "name": "Zerodha Silver ETF",              "symbol": "SILVERCASE-EQ","assetType": "ETF",    "category": "silver",              "exchange": "NSE" },
+    "INF179KC1981": { "name": "HDFC Gold ETF",                   "symbol": "HDFCGOLD-EQ",  "assetType": "ETF",    "category": "gold",                "exchange": "NSE" },
+    "INF247L01AP3": { "name": "Motilal Oswal NASDAQ 100 ETF",    "symbol": "MON100-EQ",    "assetType": "ETF",    "category": "international_equity", "exchange": "NSE" },
+    "INF247L01GH7": { "name": "Motilal Oswal Nifty Energy ETF",  "symbol": "MOENERGY-EQ",  "assetType": "ETF",    "category": "sectoral_thematic",   "exchange": "NSE" },
+    "INF666M01OE7": { "name": "Groww Gold ETF",                  "symbol": "GROWWGOLD-EQ", "assetType": "ETF",    "category": "gold",                "exchange": "NSE" },
+    "INF769K01HP3": { "name": "Mirae Asset S&P 500 Top 50 ETF",  "symbol": "MASPTOP50-EQ", "assetType": "ETF",    "category": "international_equity", "exchange": "NSE" }
+  }
+}

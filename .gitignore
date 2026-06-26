@@ -1,0 +1,39 @@
+# ===========================================================================
+# Personal portfolio data — NEVER share these.
+# The dashboard works fine without them (empty states until your friend adds his
+# own data via "Update Portfolio" / by running the agent tasks).
+# NOTE: keep comments on their OWN line — git does not support inline comments.
+# ===========================================================================
+
+# your holdings (single source of truth)
+portfolio.json
+
+# your personal risk profile / budget (goals.example.md is shared instead)
+goals.md
+
+# rolling backups of your holdings
+backups/
+
+# the AI-written advisory files (your holdings analysis)
+data/*.json
+
+# your raw Groww exports
+initial_stage/*.xlsx
+initial_stage/*.xls
+
+# old engine + earlier copies of your holdings
+legacy/
+
+# keep these folder placeholders tracked
+!data/README.md
+!initial_stage/README.md
+
+# ===========================================================================
+# Junk / environment
+# ===========================================================================
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+.DS_Store
