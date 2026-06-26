@@ -5,6 +5,9 @@ import { SnapshotSchema, parseOrThrow } from "@/lib/schemas";
 import { getHoldings, readSession } from "@/lib/kite";
 import type { z } from "zod";
 
+
+// Read live from disk on every request (prod `next build` would otherwise bake the file at build time).
+export const dynamic = "force-dynamic";
 type Snapshot = z.output<typeof SnapshotSchema>;
 type KiteHolding = {
   tradingsymbol: string;

@@ -3,6 +3,9 @@ import { readFile, stat } from "node:fs/promises";
 import { US_STOCKS_FILE } from "@/lib/paths";
 import { USStocksDataSchema, parseOrThrow } from "@/lib/schemas";
 
+
+// Read live from disk on every request (prod `next build` would otherwise bake the file at build time).
+export const dynamic = "force-dynamic";
 export async function GET() {
   try {
     const [content, st] = await Promise.all([

@@ -4,6 +4,9 @@ import { MUTUAL_FUNDS_FILE } from "@/lib/paths";
 import { parseMutualFunds } from "@/lib/parsers";
 import { fetchAllNAVs } from "@/lib/mfapi";
 
+
+// Read live from disk on every request (prod `next build` would otherwise bake the file at build time).
+export const dynamic = "force-dynamic";
 export async function GET() {
   try {
     const [content, st] = await Promise.all([

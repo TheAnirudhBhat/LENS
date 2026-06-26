@@ -7,6 +7,9 @@ import { DecisionsFileSchema, parseOrThrow } from "@/lib/schemas";
 import { getHoldings, readSession } from "@/lib/kite";
 import { fetchAllNAVs } from "@/lib/mfapi";
 
+
+// Read live from disk on every request (prod `next build` would otherwise bake the file at build time).
+export const dynamic = "force-dynamic";
 const FILE = path.join(MEMORY_DIR, "decisions.json");
 
 type Decision = {

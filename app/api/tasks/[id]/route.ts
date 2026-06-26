@@ -6,6 +6,9 @@ import { MEMORY_DIR } from "@/lib/paths";
 import { TasksFileSchema, parseOrThrow, TaskSchema } from "@/lib/schemas";
 import type { z } from "zod";
 
+
+// Read live from disk on every request (prod `next build` would otherwise bake the file at build time).
+export const dynamic = "force-dynamic";
 const FILE = path.join(MEMORY_DIR, "tasks.json");
 
 type Task = z.infer<typeof TaskSchema>;

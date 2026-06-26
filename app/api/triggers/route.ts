@@ -2,6 +2,9 @@ import { NextResponse } from "next/server";
 import { readFile } from "node:fs/promises";
 import { TRIGGERS_FILE } from "@/lib/paths";
 
+
+// Read live from disk on every request (prod `next build` would otherwise bake the file at build time).
+export const dynamic = "force-dynamic";
 type TriggerItem = {
   taskId: string;
   ticker?: string;
