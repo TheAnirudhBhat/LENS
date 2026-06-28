@@ -8792,6 +8792,9 @@ function TasksSection() {
   const [actionFilter, setActionFilter] = useState<TaskActionFilter>("all");
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
   const [reloadKey, setReloadKey] = useState(0);
+  // ticker → estimated portfolio-score points, from the doctrine score levers.
+  // Lets a row show "+N" only where the task maps to a score factor.
+  const [scoreByTicker, setScoreByTicker] = useState<Map<string, number>>(new Map());
 
   // Open the explainer modal when TriggerBanner (or any other surface)
   // dispatches `dashboard:open-task`. Dashboard root handles the tab switch.
@@ -8809,8 +8812,9 @@ function TasksSection() {
       fetch("/api/tasks").then((r) => r.json()).catch(() => ({ tasks: [] })),
       fetch("/api/usstocks").then((r) => r.json()).catch(() => ({ data: null })),
       fetch("/api/decisions").then((r) => r.json()).catch(() => ({ decisions: [] })),
+      fetch("/api/score").then((r) => r.json()).catch(() => ({ levers: [] })),
     ])
-      .then(([tasksRes, usRes, decRes]) => {
+      .then(([tasksRes, usRes, decRes, scoreRes]) => {
         setManualTasks((tasksRes.tasks || []).map((t: Task) => ({
           ...t,
           source: t.source ?? "manual",
@@ -8819,6 +8823,18 @@ function TasksSection() {
         if (typeof metaCap === "number") setCap(metaCap);
         if (usRes?.data) setUsData(usRes.data);
         setDecisions(decRes?.decisions || []);
+        // Match tasks to doctrine score levers by ticker so a row can show the
+        // estimated +points "where it maps" (concentration trim, ballast deploy,
+        // cost cut). Tasks with no matching lever carry no badge.
+        const m = new Map<string, number>();
+        for (const lev of (scoreRes?.levers ?? []) as {
+          ticker: string | null;
+          scoreGain: number;
+        }[]) {
+          if (lev.ticker && lev.scoreGain > 0)
+            m.set(lev.ticker.toUpperCase(), lev.scoreGain);
+        }
+        setScoreByTicker(m);
       })
       .finally(() => setLoaded(true));
   }, [reloadKey]);
@@ -8986,10 +9002,11 @@ function TasksSection() {
                   className="list-stagger"
                 >
                   {rows.map((t, i) => (
-                    <TaskRow
+                    <TaskListRow
                       key={t.id}
                       t={t}
                       idx={i}
+                      scoreGain={t.ticker ? scoreByTicker.get(t.ticker.toUpperCase()) : undefined}
                       onClick={() => setSelectedTaskId(t.id)}
                     />
                   ))}
@@ -9011,10 +9028,12 @@ function TasksSection() {
                 className="list-stagger"
               >
                 {visibleSuggestions.map((t, i) => (
-                  <SuggestionRow
+                  <TaskListRow
                     key={t.id}
                     t={t}
                     idx={i}
+                    dim
+                    scoreGain={t.ticker ? scoreByTicker.get(t.ticker.toUpperCase()) : undefined}
                     onClick={() => setSelectedTaskId(t.id)}
                   />
                 ))}
@@ -9158,16 +9177,6 @@ function sortInGroup(a: Task, b: Task): number {
   return (b.createdAt ?? "").localeCompare(a.createdAt ?? "");
 }
 
-const ACTION_SHORT: Record<TaskActionType, string> = {
-  buy: "BUY",
-  sell: "SELL",
-  trim: "TRIM",
-  switch: "SWITCH",
-  rebalance: "REBAL",
-  monitor: "MON",
-  watch: "WATCH",
-};
-
 /**
  * Priority group header — a real section H2 (per DESIGN.md), with a count and
  * an overdue tally. The label text itself is the rank; no tint, no left mark.
@@ -9204,10 +9213,49 @@ function PriorityGroupHeader({
  *
  * Prose (subheading) and the flow from→to visual live in the modal only.
  */
-function TaskRow({ t, idx, onClick }: { t: Task; idx?: number; onClick?: () => void }) {
+/**
+ * One task / suggestion row: brand chip · header (the action) over a "why"
+ * subtext · a trailing slot. The action verb + ticker already live in the
+ * heading, so there is no separate tag. The trailing slot is score-first: a
+ * "+N" portfolio-score badge where the task maps to a doctrine lever, else the
+ * money-move status chip, else (real tasks only) the age column. `dim` is the
+ * quieter Suggestions variant (an idea, not a commitment; no lifecycle/age).
+ */
+function TaskListRow({
+  t,
+  idx,
+  onClick,
+  scoreGain,
+  dim = false,
+}: {
+  t: Task;
+  idx?: number;
+  onClick?: () => void;
+  scoreGain?: number;
+  dim?: boolean;
+}) {
   const heading = t.heading ?? t.text ?? "(untitled)";
+  const subtext = t.subheading;
   const meta = t.ticker ? getMeta(t.ticker) : null;
-  const age = ageState(t);
+  const status = statusChip(t);
+  const age = dim ? null : ageState(t);
+
+  let trailing: React.ReactNode = null;
+  if (scoreGain != null && scoreGain > 0) {
+    trailing = (
+      <span
+        className="mono-true text-[11px] font-semibold tabular-nums px-2 py-0.5 rounded-full shrink-0"
+        style={{ background: "var(--brand-tint)", color: "var(--brand)" }}
+        title="Estimated portfolio-score points if you act on this"
+      >
+        +{scoreGain}
+      </span>
+    );
+  } else if (status) {
+    trailing = <div className="shrink-0">{status}</div>;
+  } else if (age) {
+    trailing = <AgeColumn age={age} />;
+  }
 
   return (
     <li
@@ -9221,9 +9269,11 @@ function TaskRow({ t, idx, onClick }: { t: Task; idx?: number; onClick?: () => v
           onClick?.();
         }
       }}
-      className="group relative grid grid-cols-[40px_minmax(0,1fr)_auto_auto] items-center gap-x-3 py-5 px-1 cursor-pointer transition-colors hover:bg-[var(--bg-subtle)] accent-ring after:content-[''] after:absolute after:bottom-0 after:left-[52px] after:right-1 after:h-px after:bg-[var(--border)]"
+      className={`group relative grid grid-cols-[40px_minmax(0,1fr)_auto] items-center gap-x-3 py-4 px-1 cursor-pointer transition-all hover:bg-[var(--bg-subtle)] accent-ring after:content-[''] after:absolute after:bottom-0 after:left-[52px] after:right-1 after:h-px after:bg-[var(--border)] ${
+        dim ? "opacity-75 hover:opacity-100" : ""
+      }`}
     >
-      {/* col 1 — chip / logo */}
+      {/* col 1 — brand chip / logo */}
       {t.ticker && meta ? (
         <LogoImg ticker={t.ticker} domain={meta.domain} size={40} />
       ) : t.asset === "cross" ? (
@@ -9232,44 +9282,27 @@ function TaskRow({ t, idx, onClick }: { t: Task; idx?: number; onClick?: () => v
         <TaskChip task={t} />
       )}
 
-      {/* col 2 — lead + single-line heading, stacked horizontally (still one line) */}
-      <div className="min-w-0 flex items-center gap-2.5">
-        <ActionTickerLead t={t} />
-        <span className="text-[13px] text-primary leading-snug truncate" title={heading}>
+      {/* col 2 — header (the action) over a "why" subtext */}
+      <div className="min-w-0">
+        <span
+          className={`block text-[13px] leading-snug truncate ${dim ? "text-secondary" : "text-primary"}`}
+          title={heading}
+        >
           {heading}
         </span>
+        {subtext && (
+          <span
+            className="block text-[11.5px] text-tertiary leading-snug truncate mt-0.5"
+            title={subtext}
+          >
+            {subtext}
+          </span>
+        )}
       </div>
 
-      {/* col 3 — status chip (flow.status OR anchor.label OR nothing) */}
-      <div className="shrink-0">{statusChip(t)}</div>
-
-      {/* col 4 — age vs lifetime */}
-      <AgeColumn age={age} />
+      {/* col 3 — score badge › status chip › age */}
+      {trailing}
     </li>
-  );
-}
-
-/**
- * Action-type glyph + ticker chip, both shrink-0, sitting before the heading
- * on the same baseline. This is a column, not a second line.
- */
-function ActionTickerLead({ t }: { t: Task }) {
-  return (
-    <span className="flex items-center gap-2 shrink-0">
-      {t.actionType && (
-        <span className="mono-true text-[10px] uppercase tracking-[0.06em] text-tertiary w-[34px]">
-          {ACTION_SHORT[t.actionType]}
-        </span>
-      )}
-      {t.ticker && (
-        <span
-          className="mono-true text-[12.5px] font-semibold tracking-[0.01em] px-2 py-[3px] rounded text-primary"
-          style={{ background: "var(--bg-subtle)", border: "1px solid var(--border)" }}
-        >
-          {t.ticker}
-        </span>
-      )}
-    </span>
   );
 }
 
@@ -9286,56 +9319,6 @@ function SuggestionsGroupHeader({ count }: { count: number }) {
         <span className="mono-true text-[12.5px] text-tertiary">{count}</span>
       </div>
     </div>
-  );
-}
-
-/**
- * Suggestion row — a derived idea, not a commitment. Same grid law as TaskRow
- * (40px chip · single-line label · status · trailing column, tokens only, NO
- * side-stripe) but distinctly quieter: the heading rides text-tertiary, and the
- * trailing age column is dropped (suggestions carry no createdAt) in favour of a
- * static "idea" tag so the column grid still aligns with the real rows above.
- */
-function SuggestionRow({ t, idx, onClick }: { t: Task; idx?: number; onClick?: () => void }) {
-  const heading = t.heading ?? t.text ?? "(untitled)";
-  const meta = t.ticker ? getMeta(t.ticker) : null;
-  return (
-    <li
-      style={idx !== undefined ? ({ ["--idx" as string]: idx } as React.CSSProperties) : undefined}
-      onClick={onClick}
-      role="button"
-      tabIndex={0}
-      onKeyDown={(e) => {
-        if (e.key === "Enter" || e.key === " ") {
-          e.preventDefault();
-          onClick?.();
-        }
-      }}
-      className="group relative grid grid-cols-[40px_minmax(0,1fr)_auto_auto] items-center gap-x-3 py-5 px-1 cursor-pointer opacity-75 transition-all hover:opacity-100 hover:bg-[var(--bg-subtle)] accent-ring after:content-[''] after:absolute after:bottom-0 after:left-[52px] after:right-1 after:h-px after:bg-[var(--border)]"
-    >
-      {/* col 1 — chip / logo */}
-      {t.ticker && meta ? (
-        <LogoImg ticker={t.ticker} domain={meta.domain} size={40} />
-      ) : (
-        <TaskChip task={t} />
-      )}
-
-      {/* col 2 — lead + single-line heading; heading dimmed to read as an idea */}
-      <div className="min-w-0 flex items-center gap-2.5">
-        <ActionTickerLead t={t} />
-        <span className="text-[13px] text-tertiary leading-snug truncate" title={heading}>
-          {heading}
-        </span>
-      </div>
-
-      {/* col 3 — status chip (none for suggestions today; keeps the grid aligned) */}
-      <div className="shrink-0">{statusChip(t)}</div>
-
-      {/* col 4 — no age (no createdAt); a static, dimmed marker holds the column */}
-      <span className="mono-true text-[10px] uppercase tracking-[0.06em] text-tertiary tabular-nums text-right w-[58px]">
-        idea
-      </span>
-    </li>
   );
 }
 
