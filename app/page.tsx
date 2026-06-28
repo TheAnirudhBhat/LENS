@@ -72,17 +72,16 @@ import {
   Button,
   Card,
   CardHeader,
-  CardBody,
   Modal,
   ModalSection,
   ModalFooter,
-  SectionTitle as UiSectionTitle,
-  InfoTip as UiInfoTip,
-  CompactStat as UiCompactStat,
-  Toolbar as UiToolbar,
-  ToolbarGroup as UiToolbarGroup,
-  Segmented as UiSegmented,
-  FilterDropdown as UiFilterDropdown,
+  SectionTitle,
+  InfoTip,
+  CompactStat,
+  Toolbar,
+  ToolbarGroup,
+  Segmented,
+  FilterDropdown,
 } from "@/components/ui";
 
 type Holding = {
@@ -1613,9 +1612,7 @@ function OverviewTab({ goToTab }: { goToTab: (id: TabId) => void }) {
   const [dataReady, setDataReady] = useState(overviewCache.loaded);
 
   useEffect(() => {
-    // Already loaded once — refresh in the background but don't re-show
-    // the skeleton.
-    if (overviewCache.loaded) {
+    const loadSnapshot = () =>
       fetch("/api/snapshot")
         .then((r) => r.json())
         .then((r) => {
@@ -1627,6 +1624,7 @@ function OverviewTab({ goToTab }: { goToTab: (id: TabId) => void }) {
           }
         })
         .catch(() => {});
+    const loadMf = () =>
       fetch("/api/mutualfunds")
         .then((r) => r.json())
         .then((r) => {
@@ -1636,6 +1634,7 @@ function OverviewTab({ goToTab }: { goToTab: (id: TabId) => void }) {
           }
         })
         .catch(() => {});
+    const loadUs = () =>
       fetch("/api/usstocks")
         .then((r) => r.json())
         .then((r) => {
@@ -1645,6 +1644,9 @@ function OverviewTab({ goToTab }: { goToTab: (id: TabId) => void }) {
           }
         })
         .catch(() => {});
+    // Auxiliary bonds timestamp for the asset-allocation stale pill. Informational —
+    // never gates the paint. News + earnings are owned by their own tabs now.
+    const loadBonds = () =>
       fetch("/api/bonds")
         .then((r) => r.json())
         .then((r) => {
@@ -1655,55 +1657,24 @@ function OverviewTab({ goToTab }: { goToTab: (id: TabId) => void }) {
           }
         })
         .catch(() => {});
+
+    loadBonds();
+
+    // Already loaded once this session — refresh in the background, keep the
+    // skeleton hidden.
+    if (overviewCache.loaded) {
+      loadSnapshot();
+      loadMf();
+      loadUs();
       return;
     }
 
-    // First mount of the session — fetch the 3 hero-blocking sources in parallel.
-    Promise.allSettled([
-      fetch("/api/snapshot")
-        .then((r) => r.json())
-        .then((r) => {
-          if (r.data) {
-            overviewCache.snapshot = r.data;
-            overviewCache.mtime = r.mtime;
-            setSnapshot(r.data);
-            setMtime(r.mtime);
-          }
-        }),
-      fetch("/api/mutualfunds")
-        .then((r) => r.json())
-        .then((r) => {
-          if (r.summary) {
-            overviewCache.mfSummary = r.summary;
-            setMfSummary(r.summary);
-          }
-        }),
-      fetch("/api/usstocks")
-        .then((r) => r.json())
-        .then((r) => {
-          if (r.data) {
-            overviewCache.usStocks = r.data;
-            setUsStocks(r.data);
-          }
-        }),
-    ]).then(() => {
+    // First mount — the 3 hero sources gate the skeleton; flip dataReady once
+    // they settle (allSettled: a slow/failed source still releases the paint).
+    Promise.allSettled([loadSnapshot(), loadMf(), loadUs()]).then(() => {
       overviewCache.loaded = true;
       setDataReady(true);
     });
-
-    // Auxiliary bonds timestamp for the asset-allocation stale pill. Informational.
-    // News + earnings are NOT fetched here — they're owned by their own tabs now
-    // and are no longer surfaced in the Overview AssetSplitStrip rotation.
-    fetch("/api/bonds")
-      .then((r) => r.json())
-      .then((r) => {
-        const ts = r?.data?.fetchedAt ?? r?.mtime ?? null;
-        if (ts) {
-          overviewCache.bondsFetchedAt = ts;
-          setBondsFetchedAt(ts);
-        }
-      })
-      .catch(() => {});
   }, []);
 
   const stats = useMemo(() => {
@@ -1785,8 +1756,7 @@ function OverviewTab({ goToTab }: { goToTab: (id: TabId) => void }) {
     const risk = computeRisk(
       holdings as AnHolding[],
       snapshot.totalValue,
-      snapshot.peakValue,
-      snapshot.cash ?? 0
+      snapshot.peakValue
     );
 
     // Combined book: IN stocks + MFs + US stocks + cash
@@ -2435,11 +2405,6 @@ function shortenRegime(r?: string): string {
   // Fallback: first whitespace-delimited token, stripped of trailing comma.
   return r.trim().split(/\s+/)[0].replace(/[,.]+$/, "") || "—";
 }
-
-// Inline InfoTip / CompactStat moved to components/ui. Keep local aliases
-// so existing call-sites continue to work.
-const InfoTip = UiInfoTip;
-const CompactStat = UiCompactStat;
 
 function RiskStrip({
   risk,
@@ -4659,7 +4624,6 @@ function IndianResearchUnified() {
                     value: t.label,
                     label: t.label,
                     count: t.count,
-                    dot: colorForTrend(t.label, analysis?.megatrends ?? []),
                     hint: trendExplainer(t.label, analysis?.megatrends ?? []),
                   })),
                 ];
@@ -6468,32 +6432,6 @@ function DeployCard() {
   );
 }
 
-function FilterPill({
-  active,
-  onClick,
-  children,
-}: {
-  active: boolean;
-  onClick: () => void;
-  children: React.ReactNode;
-}) {
-  return (
-    <button
-      onClick={onClick}
-      className={`px-3 py-1.5 rounded-md ${active ? "tab-active" : "tab-idle"}`}
-    >
-      {children}
-    </button>
-  );
-}
-
-// Segmented / Toolbar / ToolbarGroup moved to components/ui. Aliases keep
-// existing call-sites working.
-const Segmented = UiSegmented;
-const Toolbar = UiToolbar;
-const ToolbarGroup = UiToolbarGroup;
-const FilterDropdown = UiFilterDropdown;
-
 function RegimeChip({
   regime,
   scanDate,
@@ -6606,49 +6544,6 @@ function RegimeChip({
         </button>
       )}
     </div>
-  );
-}
-
-function IdeaSection({
-  title,
-  count,
-  items,
-  sort,
-  empty,
-}: {
-  title: string;
-  count: number;
-  items: IdeaItem[];
-  sort: IdeaSort;
-  empty: string;
-}) {
-  if (count === 0) {
-    return (
-      <section>
-        <div className="flex items-baseline justify-between mb-3">
-          <h2 className="text-base font-semibold text-primary tracking-tight">
-            {title}
-          </h2>
-          <span className="text-[11px] text-tertiary mono-true">0</span>
-        </div>
-        <p className="text-[12px] text-tertiary py-4">{empty}</p>
-      </section>
-    );
-  }
-  return (
-    <section>
-      <div className="flex items-baseline justify-between mb-3">
-        <h2 className="text-base font-semibold text-primary tracking-tight">
-          {title}
-        </h2>
-        <span className="text-[11px] text-tertiary mono-true">{count}</span>
-      </div>
-      <ul>
-        {items.map((e) => (
-          <IdeaRow key={`${e.source}-${e.ticker}`} item={e} sort={sort} />
-        ))}
-      </ul>
-    </section>
   );
 }
 
@@ -7021,43 +6916,6 @@ function shortConfidenceLabel(value?: string): string {
   // longest-first so MEDIUM-HIGH wins over HIGH
   const m = u.match(/MEDIUM-HIGH|LOW-MEDIUM|HIGH|MEDIUM|LOW/);
   return m ? m[0] : u.split(/[\s—\-(]/)[0];
-}
-
-function RightSlot({
-  sort,
-  confidence,
-  sector,
-  date,
-}: {
-  sort: IdeaSort;
-  confidence?: string;
-  sector?: string;
-  date?: string;
-  entry?: string;
-}) {
-  if (sort === "confidence") {
-    const cls = confidenceTone(confidence);
-    return (
-      <span className={`text-right text-[12.5px] mono font-medium tabular-nums whitespace-nowrap ${cls}`}>
-        {shortConfidenceLabel(confidence)}
-      </span>
-    );
-  }
-  if (sort === "sector") {
-    return (
-      <span className="text-right text-[12.5px] mono text-secondary truncate max-w-[160px] whitespace-nowrap">
-        {sector || "—"}
-      </span>
-    );
-  }
-  if (sort === "date") {
-    return (
-      <span className="text-right mono-true text-[11.5px] text-tertiary whitespace-nowrap">
-        {date || "—"}
-      </span>
-    );
-  }
-  return null;
 }
 
 type TickerOption = { ticker: string; name: string; sector?: string };
@@ -7968,283 +7826,6 @@ function trendExplainer(label: string, megatrends: Megatrend[]): string {
   const m = megatrends.find((m) => prettyTrend(m.label) === label);
   if (m?.tamNote) return m.tamNote;
   return TREND_EXPLAINER[label] ?? "";
-}
-
-function TrendFilterStrip({
-  unified,
-  megatrends,
-  active,
-  onSelect,
-  scoreFilter,
-  onScoreChange,
-}: {
-  unified: UnifiedCandidate[];
-  megatrends: Megatrend[];
-  active: string | null;
-  onSelect: (label: string | null) => void;
-  scoreFilter: "all" | "buy" | "watch" | "low";
-  onScoreChange: (v: "all" | "buy" | "watch" | "low") => void;
-}) {
-  const buckets = new Map<string, { count: number; max: number }>();
-  for (const u of unified) {
-    const k = bucketLabel(u);
-    const prev = buckets.get(k) ?? { count: 0, max: 0 };
-    buckets.set(k, { count: prev.count + 1, max: Math.max(prev.max, u.score) });
-  }
-  const sorted = [...buckets.entries()]
-    .map(([label, v]) => ({ label, ...v }))
-    .sort((a, b) => b.count - a.count || b.max - a.max);
-
-  const scoreOpts = [
-    { v: "all", label: "All" },
-    { v: "buy", label: "Buy >=6" },
-    { v: "watch", label: "Watch" },
-    { v: "low", label: "Low" },
-  ] as const;
-
-  const pillCls = (isActive: boolean) =>
-    `px-2.5 py-1 text-[11.5px] font-medium rounded-full transition-colors accent-ring inline-flex items-center gap-1.5 ${
-      isActive ? "text-primary" : "text-tertiary hover:text-secondary"
-    }`;
-  const pillStyle = (isActive: boolean): React.CSSProperties =>
-    isActive ? { background: "var(--bg-subtle)" } : {};
-
-  return (
-    <div className="px-3 md:px-5 flex flex-col gap-2">
-      <div className="flex items-center gap-1 flex-wrap">
-        <span className="text-[11px] text-tertiary uppercase tracking-wide mr-2 shrink-0">
-          Trend
-        </span>
-        <button
-          onClick={() => onSelect(null)}
-          className={pillCls(active === null)}
-          style={pillStyle(active === null)}
-        >
-          All
-        </button>
-        {sorted.map((b) => {
-          const isActive = active === b.label;
-          const color = colorForTrend(b.label, megatrends);
-          const hint = trendExplainer(b.label, megatrends);
-          return (
-            <button
-              key={b.label}
-              onClick={() => onSelect(isActive ? null : b.label)}
-              title={hint || undefined}
-              className={pillCls(isActive)}
-              style={pillStyle(isActive)}
-            >
-              <span
-                className="w-1.5 h-1.5 rounded-full"
-                style={{ background: color }}
-              />
-              {b.label}
-              <span className="text-tertiary mono text-[10.5px]">
-                {b.count}
-              </span>
-            </button>
-          );
-        })}
-      </div>
-
-      <div className="flex items-center gap-1 flex-wrap">
-        <span className="text-[11px] text-tertiary uppercase tracking-wide mr-2 shrink-0">
-          Score
-        </span>
-        {scoreOpts.map((s) => {
-          const isActive = scoreFilter === s.v;
-          return (
-            <button
-              key={s.v}
-              onClick={() => onScoreChange(s.v)}
-              className={pillCls(isActive)}
-              style={pillStyle(isActive)}
-            >
-              {s.label}
-            </button>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
-
-function ConvictionLadder({
-  unified,
-  megatrends,
-  onOpen,
-}: {
-  unified: UnifiedCandidate[];
-  megatrends: Megatrend[];
-  onOpen: (ticker: string) => void;
-}) {
-  const bands = [
-    { key: "buy", label: "Buy zone", min: 6, max: Infinity, hint: "score >= 6" },
-    { key: "watch", label: "Watch", min: 4.5, max: 6, hint: "4.5 - 6" },
-    { key: "low", label: "Low conviction", min: 0, max: 4.5, hint: "< 4.5" },
-  ];
-  const grouped = bands.map((b) => {
-    const items = unified
-      .filter((u) => u.score >= b.min && u.score < b.max)
-      .sort((a, b2) => b2.score - a.score);
-    return { ...b, items };
-  });
-  const total = unified.length || 1;
-
-  return (
-    <div className="px-5 md:px-6 py-5 flex flex-col gap-5">
-      <div className="flex items-baseline justify-between gap-3">
-        <span className="text-[12px] text-tertiary">Conviction ladder</span>
-        <span className="text-[11px] text-tertiary">
-          {grouped[0].items.length} in buy zone of {total}
-        </span>
-      </div>
-
-      <div
-        className="flex h-2 rounded-full overflow-hidden"
-        style={{ background: "var(--bg-subtle)" }}
-      >
-        {grouped.map((g) => {
-          const pct = (g.items.length / total) * 100;
-          if (pct === 0) return null;
-          const color =
-            g.key === "buy"
-              ? "var(--pos)"
-              : g.key === "watch"
-              ? "var(--warn)"
-              : "var(--text-disabled)";
-          return (
-            <div
-              key={g.key}
-              style={{ width: `${pct}%`, background: color }}
-              title={`${g.label}: ${g.items.length}`}
-            />
-          );
-        })}
-      </div>
-
-      <div className="flex flex-col gap-5">
-        {grouped.map((g) => {
-          if (g.items.length === 0) return null;
-          const dot =
-            g.key === "buy"
-              ? "var(--pos)"
-              : g.key === "watch"
-              ? "var(--warn)"
-              : "var(--text-disabled)";
-          return (
-            <div key={g.key} className="flex flex-col gap-2.5">
-              <div className="flex items-center gap-2">
-                <span
-                  className="w-2 h-2 rounded-full"
-                  style={{ background: dot }}
-                />
-                <span className="text-[12px] font-medium text-primary">
-                  {g.label}
-                </span>
-                <span className="text-[11px] text-tertiary">
-                  {g.items.length} - {g.hint}
-                </span>
-              </div>
-              <div className="flex flex-wrap gap-1.5">
-                {g.items.map((u) => {
-                  const trendColor = colorForTrend(bucketLabel(u), megatrends);
-                  return (
-                    <button
-                      key={u.ticker}
-                      onClick={() => onOpen(u.ticker)}
-                      className="text-[11px] mono px-2 py-1 rounded-md border border-subtle text-secondary hover:text-primary hover:bg-[var(--bg-subtle)] transition-colors flex items-center gap-1.5 accent-ring"
-                    >
-                      <span
-                        className="w-1.5 h-1.5 rounded-full shrink-0"
-                        style={{ background: trendColor }}
-                      />
-                      {u.ticker}
-                      <span className="text-tertiary">
-                        {u.score.toFixed(1)}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
-
-function TrendDistribution({
-  megatrends,
-  unified,
-  active,
-  onSelect,
-}: {
-  megatrends: Megatrend[];
-  unified: UnifiedCandidate[];
-  active: string | null;
-  onSelect: (label: string | null) => void;
-}) {
-  // Build a color lookup keyed by the *pretty* label so colors stay
-  // stable across analysis trends and holding-derived sectors.
-  const colorByLabel = new Map<string, string>();
-  for (const m of megatrends) {
-    colorByLabel.set(prettyTrend(m.label), m.color);
-  }
-  const fallbackPalette = [
-    "#0ea5e9",
-    "#14b8a6",
-    "#a855f7",
-    "#f97316",
-    "#84cc16",
-    "#eab308",
-    "#22c55e",
-    "#ef4444",
-  ];
-  const colorFor = (label: string) => {
-    const c = colorByLabel.get(label);
-    if (c) return c;
-    let h = 0;
-    for (let i = 0; i < label.length; i++) h = (h * 31 + label.charCodeAt(i)) | 0;
-    return fallbackPalette[Math.abs(h) % fallbackPalette.length];
-  };
-
-  const buckets = new Map<string, number>();
-  for (const u of unified) {
-    const k = bucketLabel(u);
-    buckets.set(k, (buckets.get(k) ?? 0) + 1);
-  }
-  const sorted = [...buckets.entries()]
-    .map(([label, count]) => ({ label, count }))
-    .sort((a, b) => b.count - a.count);
-
-  return (
-    <ul className="flex flex-col max-h-[420px] overflow-y-auto no-scrollbar">
-      {sorted.map((b, i) => {
-        const isActive = active === b.label;
-        return (
-          <li
-            key={b.label}
-            onClick={() => onSelect(isActive ? null : b.label)}
-            className="px-5 py-2.5 flex items-center gap-2.5 transition-colors cursor-pointer hover:bg-[var(--bg-subtle)]"
-            style={{
-              borderTop: i > 0 ? "1px solid var(--border)" : undefined,
-              background: isActive ? "var(--bg-subtle)" : undefined,
-            }}
-          >
-            <span
-              className="w-2 h-2 rounded-full shrink-0"
-              style={{ background: colorFor(b.label) }}
-            />
-            <span className="text-[12px] text-primary font-medium min-w-0 truncate flex-1">
-              {b.label}
-            </span>
-          </li>
-        );
-      })}
-    </ul>
-  );
 }
 
 function MegatrendTailwindBars({
@@ -10848,26 +10429,6 @@ function BriefBullet({ children }: { children: React.ReactNode }) {
   );
 }
 
-function LinkPill({
-  onClick,
-  children,
-}: {
-  onClick: () => void;
-  children: React.ReactNode;
-}) {
-  return (
-    <button
-      onClick={onClick}
-      className="inline-flex items-center gap-1 text-[11.5px] text-tertiary hover:text-primary transition-colors accent-ring whitespace-nowrap"
-    >
-      {children}
-      <span className="text-tertiary text-[10px]" aria-hidden="true">
-        →
-      </span>
-    </button>
-  );
-}
-
 function ageHoursFromISO(iso: string | null | undefined): number | null {
   if (!iso) return null;
   const t = new Date(iso).getTime();
@@ -10878,7 +10439,6 @@ function ageHoursFromISO(iso: string | null | undefined): number | null {
 function PageHero({
   title,
   subtitle,
-  mtime,
   info,
   actions,
   children,
@@ -10887,7 +10447,6 @@ function PageHero({
 }: {
   title: React.ReactNode;
   subtitle?: string;
-  mtime?: string | null;
   info?: string;
   actions?: React.ReactNode;
   children?: React.ReactNode;
@@ -10944,9 +10503,6 @@ function PageHero({
   );
 }
 
-// SectionTitle moved to components/ui. Alias keeps call-sites stable.
-const SectionTitle = UiSectionTitle;
-
 function PageHeader({
   title,
   subtitle,
@@ -10986,49 +10542,11 @@ function PageHeader({
   );
 }
 
-function Stat({
-  label,
-  value,
-  sub,
-  accent,
-}: {
-  label: string;
-  value: string;
-  sub?: string;
-  accent?: "pos" | "neg";
-}) {
-  const accentCls =
-    accent === "pos"
-      ? "text-pos"
-      : accent === "neg"
-      ? "text-neg"
-      : "text-primary";
-  return (
-    <div className="surface rounded-lg p-6">
-      <div className="type-meta text-tertiary">{label}</div>
-      <div className={`type-h2 mt-3 mono ${accentCls}`}>{value}</div>
-      {sub && <div className="type-caption text-tertiary mt-2 mono">{sub}</div>}
-    </div>
-  );
-}
-
-
 function EmptyState({ message }: { message: string }) {
   return (
     <div className="surface rounded-lg p-10 text-sm text-tertiary text-center">
       {message}
     </div>
-  );
-}
-
-/** A single shimmer block — sized in tailwind classes. Uses pulse animation
- *  + neutral background that matches the design system. */
-function SkBlock({ className = "" }: { className?: string }) {
-  return (
-    <div
-      className={`animate-pulse rounded ${className}`}
-      style={{ background: "var(--bg-subtle)" }}
-    />
   );
 }
 
@@ -11046,40 +10564,6 @@ function Skeleton({ fadingOut = false }: { fadingOut?: boolean }) {
         animation: "pulse 1500ms cubic-bezier(0.4, 0, 0.6, 1) infinite",
       }}
     />
-  );
-}
-
-function Th({
-  children,
-  right,
-}: {
-  children?: React.ReactNode;
-  right?: boolean;
-}) {
-  return (
-    <th
-      className={`px-4 py-3 font-medium ${right ? "text-right" : "text-left"}`}
-    >
-      {children}
-    </th>
-  );
-}
-
-function Td({
-  children,
-  right,
-  className = "",
-}: {
-  children?: React.ReactNode;
-  right?: boolean;
-  className?: string;
-}) {
-  return (
-    <td
-      className={`px-4 py-3 ${right ? "text-right" : "text-left"} ${className}`}
-    >
-      {children}
-    </td>
   );
 }
 

@@ -1,5 +1,6 @@
 export { Button } from "./Button";
-export { Card, CardHeader, CardBody } from "./Card";
+export { Card, CardHeader } from "./Card";
+export { DataPoint } from "./DataPoint";
 export { Modal, ModalSection, ModalFooter } from "./Modal";
 export { SectionTitle } from "./SectionTitle";
 export { InfoTip } from "./InfoTip";

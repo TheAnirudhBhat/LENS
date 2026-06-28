@@ -53,7 +53,7 @@ type Tagging = {
   eventType?: EventType;
 };
 
-export type TaggedArticle = NewsItem & {
+type TaggedArticle = NewsItem & {
   tagging: Tagging;
   /** Played-out: stub price-delta per ticker (% since publish). */
   priceDelta?: Record<string, number>;
@@ -916,7 +916,7 @@ function dedupeArticles(input: NewsItem[]): NewsItem[] {
  * Forecast view drops anything that is purely retrospective (`actionability: "skip"`).
  * Played-out view returns everything so the user can audit what already moved.
  */
-export function filterForView(
+function filterForView(
   articles: TaggedArticle[],
   view: "forecast" | "playedout" | "all"
 ): TaggedArticle[] {
@@ -945,18 +945,6 @@ async function readDiskCache(): Promise<CacheEntry | null> {
   } catch {
     return null;
   }
-}
-
-// Compact ticker bundle for the /portfolio-check skill — avoids re-reading
-// snapshot/us/mf in chat context.
-async function readTickerBundle() {
-  const port = await loadUserPortfolio();
-  return {
-    in: port.inTickers,
-    us: port.usTickers,
-    mf: port.mfTickers,
-    watchlist: port.watchlist,
-  };
 }
 
 /**

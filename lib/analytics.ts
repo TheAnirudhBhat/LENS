@@ -15,16 +15,12 @@ export type Holding = {
 };
 
 export type RiskSummary = {
-  top1Weight: number;
-  top1Ticker: string;
   top3Weight: number;
-  top5Weight: number;
   hhi: number; // Herfindahl–Hirschman index of weights (0..10000)
   // Max loss if every holding ≥ -15% trigger gets cut at -15% from cost
   maxLossINRIfCutRule: number;
   drawdownFromPeakPct: number;
   sectorMix: { sector: string; pct: number }[];
-  cashPct: number;
   bondsPct: number;
   equityPct: number;
   etfPct: number;
@@ -33,15 +29,10 @@ export type RiskSummary = {
 export function computeRisk(
   holdings: Holding[],
   totalValue: number,
-  peakValue?: number,
-  cash = 0
+  peakValue?: number
 ): RiskSummary {
   const sorted = [...holdings].sort((a, b) => b.weight - a.weight);
-  const top1 = sorted[0];
-  const top1Weight = top1?.weight ?? 0;
-  const top1Ticker = top1?.ticker ?? "—";
   const top3Weight = sorted.slice(0, 3).reduce((s, h) => s + h.weight, 0);
-  const top5Weight = sorted.slice(0, 5).reduce((s, h) => s + h.weight, 0);
   const hhi = sorted.reduce((s, h) => s + h.weight * h.weight, 0);
 
   // "Open loss to cut rule" — only counts holdings currently in the red
@@ -91,15 +82,11 @@ export function computeRisk(
   }
 
   return {
-    top1Weight,
-    top1Ticker,
     top3Weight,
-    top5Weight,
     hhi,
     maxLossINRIfCutRule: Math.round(maxLoss),
     drawdownFromPeakPct,
     sectorMix,
-    cashPct: (cash / totalValue) * 100,
     equityPct: (equityVal / totalValue) * 100,
     etfPct: (etfVal / totalValue) * 100,
     bondsPct: (bondVal / totalValue) * 100,

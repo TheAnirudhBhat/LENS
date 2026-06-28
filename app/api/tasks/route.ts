@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
-import os from "node:os";
 import { MEMORY_DIR } from "@/lib/paths";
 import { TasksFileSchema, parseOrThrow, TaskSchema } from "@/lib/schemas";
 import type { z } from "zod";

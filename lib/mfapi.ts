@@ -12,7 +12,6 @@
 
 import { readFile } from "node:fs/promises";
 import path from "node:path";
-import os from "node:os";
 import { MEMORY_DIR } from "@/lib/paths";
 
 const SCHEME_CODES_FILE = path.join(MEMORY_DIR, "mf_scheme_codes.json");

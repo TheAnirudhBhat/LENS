@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { readFile, stat } from "node:fs/promises";
 import path from "node:path";
-import os from "node:os";
 import { MEMORY_DIR } from "@/lib/paths";
 
 const FILE = path.join(MEMORY_DIR, "portfolio_history.json");

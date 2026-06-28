@@ -58,7 +58,7 @@ Type scale (in `globals.css`): `.type-h1`, `.type-h2`, `.type-h3`, `.type-h4`,
 row `px-6 py-5 flex items-center justify-between flex-wrap gap-3`, often
 with `borderBottom: 1px solid var(--border)` separating header from body.
 
-Use `<Card>` + `<CardHeader>` + `<CardBody>` for consistency.
+Use `<Card>` + `<CardHeader>` for consistency.
 
 ## Buttons
 

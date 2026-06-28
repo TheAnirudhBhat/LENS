@@ -303,14 +303,14 @@ export type Profile = z.infer<typeof ProfileSchema>;
 // ───────────────────────────────────────────────────────────────────────────
 // Research candidates (US equities + mutual funds)
 // ───────────────────────────────────────────────────────────────────────────
-const CouncilSeatSchema = z.object({
+export const CouncilSeatSchema = z.object({
   score: z.number(),
   confidence: z.number(),
   reason: z.string().optional(),
   source: z.string().optional(),
 });
 
-const CouncilBreakdownSchema = z.object({
+export const CouncilBreakdownSchema = z.object({
   fundamental: CouncilSeatSchema,
   macro: CouncilSeatSchema,
   risk: CouncilSeatSchema,

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { getMeta, tickerColor } from "@/lib/tickerMeta";
 import LogoImg from "./LogoImg";
+import { DataPoint } from "@/components/ui";
 
 type Score = { value: number | null; reason?: string };
 type Scores = {
@@ -350,74 +351,6 @@ function Section({
       <div className="text-[11px] font-medium text-tertiary mb-4">{title}</div>
       {children}
     </section>
-  );
-}
-
-function DataPoint({
-  label,
-  value,
-  sub,
-  accent,
-  emphasis,
-  small,
-}: {
-  label: string;
-  value: string;
-  sub?: string;
-  accent?: string;
-  emphasis?: boolean;
-  small?: boolean;
-}) {
-  const sizeCls = emphasis
-    ? "text-[22px]"
-    : small
-    ? "text-[13px]"
-    : "text-[15px]";
-  return (
-    <div>
-      <div className="text-[11px] text-tertiary mb-1">{label}</div>
-      <div className={`mono font-semibold leading-none tabular-nums ${sizeCls} ${accent || "text-primary"}`}>
-        {value}
-      </div>
-      {sub && <div className="text-[11px] text-tertiary mt-1.5 mono">{sub}</div>}
-    </div>
-  );
-}
-
-function Stat({
-  label,
-  value,
-  sub,
-  accent,
-  big,
-}: {
-  label: string;
-  value: string;
-  sub?: string;
-  accent?: string;
-  big?: boolean;
-}) {
-  return (
-    <div className="surface-subtle rounded-xl p-3.5">
-      <div className="text-[11px] text-tertiary">{label}</div>
-      <div
-        className={`${big ? "text-lg" : "text-sm"} mono font-semibold mt-1 ${
-          accent || "text-primary"
-        }`}
-      >
-        {value}
-      </div>
-      {sub && <div className="text-[10px] text-tertiary mt-0.5">{sub}</div>}
-    </div>
-  );
-}
-
-function Mini({ label, value }: { label: string; value?: string }) {
-  return (
-    <div className="surface-subtle rounded-lg p-2.5">
-      <div className="text-[10.5px] text-tertiary">{label}</div>
-      <div className="mono text-primary text-xs mt-0.5">{value || "—"}</div>
-    </div>
   );
 }
 

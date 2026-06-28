@@ -21,7 +21,6 @@ import { KiteConnect as KiteConnectImport } from "kiteconnect";
 import type { KiteConnectParams } from "kiteconnect";
 import { readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
-import os from "node:os";
 import { MEMORY_DIR } from "@/lib/paths";
 
 // kiteconnect@5.3 mistypes the default export as a const value instead of a
@@ -41,8 +40,6 @@ type KiteClient = {
     login_time?: Date | string;
   }>;
   getHoldings: () => Promise<unknown>;
-  getPositions: () => Promise<unknown>;
-  getMargins: () => Promise<unknown>;
   getLTP: (instruments: string | string[]) => Promise<unknown>;
 };
 const KiteConnect = KiteConnectImport as unknown as new (
@@ -151,18 +148,6 @@ export async function getHoldings() {
   });
   holdingsCache = { at: now, promise };
   return promise;
-}
-
-/** Fetch live intraday + overnight positions. */
-export async function getPositions() {
-  const kc = await getKite();
-  return kc.getPositions();
-}
-
-/** Fetch margins (cash available). */
-export async function getMargins() {
-  const kc = await getKite();
-  return kc.getMargins();
 }
 
 /** LTPs for a list of NSE/BSE instruments — e.g. ["NSE:RELIANCE", "BSE:TCS"]. */

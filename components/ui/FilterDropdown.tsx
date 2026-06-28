@@ -6,7 +6,6 @@ export type FilterOption<T extends string> = {
   value: T;
   label: string;
   hint?: string;
-  dot?: string;
   count?: number;
 };
 

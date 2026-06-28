@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
-import os from "node:os";
 import { MEMORY_DIR } from "@/lib/paths";
 import { MFRotationsFileSchema, parseOrThrow } from "@/lib/schemas";
 

@@ -158,9 +158,9 @@ export default function NewsTab() {
 
   const sentimentOptions: FilterOption<SentimentFilter>[] = [
     { value: "all", label: "All sentiment" },
-    { value: "+", label: "Bullish", dot: "var(--pos)" },
-    { value: "-", label: "Bearish", dot: "var(--neg)" },
-    { value: "neutral", label: "Neutral", dot: "var(--text-tertiary)" },
+    { value: "+", label: "Bullish" },
+    { value: "-", label: "Bearish" },
+    { value: "neutral", label: "Neutral" },
   ];
   const sectorOptions: FilterOption<string>[] = [
     { value: "all", label: "All sectors" },
