@@ -3,6 +3,7 @@ import { readFile, stat } from "node:fs/promises";
 import { US_STOCKS_FILE } from "@/lib/paths";
 import { USStocksDataSchema, parseOrThrow } from "@/lib/schemas";
 import { fetchUSQuotes, fetchUsdInr } from "@/lib/usquote";
+import { resolveFx } from "@/lib/fx";
 import type { z } from "zod";
 
 
@@ -25,8 +26,17 @@ async function enrichWithLiveQuotes(data: USData): Promise<USData> {
     return data;
   }
   if (quotes.size === 0) return data;
+  // One FX source of truth (shared with the score route): resolveFx prefers the
+  // live rate, persists it to fx_last_known.json, and falls back to that stored
+  // rate. It throws only when neither exists — then fall back to the file's own
+  // inline fx block so nothing regresses; fx<=0 below keeps stored prices.
   const liveFx = await fetchUsdInr().catch(() => null);
-  const fx: number = Number(liveFx ?? data.fx?.usdInr ?? 0);
+  let fx: number;
+  try {
+    fx = resolveFx(liveFx, "live");
+  } catch {
+    fx = Number(data.fx?.usdInr ?? 0);
+  }
   let invTot = 0;
   let curTot = 0;
   const newPositions = positions.map((p) => {
