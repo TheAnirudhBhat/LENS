@@ -5,6 +5,7 @@ import { MEMORY_DIR, SNAPSHOT_FILE, US_STOCKS_FILE } from "@/lib/paths";
 import { DecisionsFileSchema, parseOrThrow } from "@/lib/schemas";
 import { getHoldings, readSession } from "@/lib/kite";
 import { fetchAllNAVs } from "@/lib/mfapi";
+import { withinMs, PAINT_BUDGET_MS } from "@/lib/timeoutRace";
 
 
 // Read live from disk on every request (prod `next build` would otherwise bake the file at build time).
@@ -78,30 +79,41 @@ async function readLivePrices(): Promise<Record<string, number>> {
     }
   } catch {}
 
-  // 4. Live overrides — Kite for IN, mfapi for MF. Run in parallel; failures
-  //    silently fall back to snapshot/external prices.
-  const [kiteRes, mfRes] = await Promise.allSettled([
-    (async () => {
-      const session = await readSession();
-      if (!session?.access_token) return null;
-      return (await getHoldings()) as {
-        tradingsymbol: string;
-        last_price: number;
-      }[];
-    })(),
-    fetchAllNAVs().catch(() => []),
-  ]);
-
-  if (kiteRes.status === "fulfilled" && kiteRes.value) {
-    for (const h of kiteRes.value) {
-      if (h.last_price > 0) map[h.tradingsymbol.toUpperCase()] = h.last_price;
-    }
-  }
-  if (mfRes.status === "fulfilled" && Array.isArray(mfRes.value)) {
-    for (const n of mfRes.value) {
-      if (n.nav > 0) map[n.ticker.toUpperCase()] = n.nav;
-    }
-  }
+  // 4. Live overrides — Kite for IN, mfapi for MF. Time-boxed: the file-based
+  //    prices above (snapshot / us / external) are cron-fresh and good enough
+  //    for the outcome read, so we wait only PAINT_BUDGET_MS for the live
+  //    refresh before returning. The fetch keeps running to warm the Kite/mfapi
+  //    caches for the next request (mfapi alone can take ~7s cold) — without it
+  //    this route blocked the Tasks + Decision tabs on every cold load.
+  const overrides = await withinMs(
+    Promise.allSettled([
+      (async () => {
+        const session = await readSession();
+        if (!session?.access_token) return null;
+        return (await getHoldings()) as {
+          tradingsymbol: string;
+          last_price: number;
+        }[];
+      })(),
+      fetchAllNAVs().catch(() => []),
+    ]).then(([kiteRes, mfRes]) => {
+      const o: Record<string, number> = {};
+      if (kiteRes.status === "fulfilled" && kiteRes.value) {
+        for (const h of kiteRes.value) {
+          if (h.last_price > 0) o[h.tradingsymbol.toUpperCase()] = h.last_price;
+        }
+      }
+      if (mfRes.status === "fulfilled" && Array.isArray(mfRes.value)) {
+        for (const n of mfRes.value) {
+          if (n.nav > 0) o[n.ticker.toUpperCase()] = n.nav;
+        }
+      }
+      return o;
+    }),
+    PAINT_BUDGET_MS,
+    {} as Record<string, number>,
+  );
+  Object.assign(map, overrides);
 
   return map;
 }
