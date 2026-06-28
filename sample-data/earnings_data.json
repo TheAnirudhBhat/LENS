@@ -1,0 +1,91 @@
+{
+  "updatedAt": "2026-06-26T06:00:00Z",
+  "records": [
+    {
+      "ticker": "TCS",
+      "company": "Tata Consultancy Services",
+      "market": "IN",
+      "period": "Q4 FY26",
+      "reportedAt": "2026-04-15T00:00:00Z",
+      "metrics": {
+        "revenue": 640000000000,
+        "revenueLabel": "₹64,000 Cr",
+        "revenueYoYPct": 7.2,
+        "eps": 125000000000,
+        "epsYoYPct": 9.4,
+        "operatingMarginPct": 24.8,
+        "profitMarginPct": 19.5
+      },
+      "brief": "Revenue ₹64,000 Cr (+7% YoY), Profit ₹12,500 Cr (+9% YoY), op margin 24.8%. Demo data.",
+      "sourceUrl": "https://example.com/demo/tcs",
+      "sourceName": "Demo Filing",
+      "nextEarningsDate": "2026-07-12T00:00:00Z",
+      "sector": "IT Services"
+    },
+    {
+      "ticker": "INFY",
+      "company": "Infosys",
+      "market": "IN",
+      "period": "Q4 FY26",
+      "reportedAt": "2026-04-18T00:00:00Z",
+      "metrics": {
+        "revenue": 400000000000,
+        "revenueLabel": "₹40,000 Cr",
+        "revenueYoYPct": 5.1,
+        "eps": 68000000000,
+        "epsYoYPct": 3.2,
+        "operatingMarginPct": 21.1,
+        "profitMarginPct": 17.0
+      },
+      "brief": "Revenue ₹40,000 Cr (+5% YoY), Profit ₹6,800 Cr (+3% YoY), op margin 21.1%. Demo data.",
+      "sourceUrl": "https://example.com/demo/infy",
+      "sourceName": "Demo Filing",
+      "nextEarningsDate": "2026-07-15T00:00:00Z",
+      "sector": "IT Services"
+    },
+    {
+      "ticker": "AAPL",
+      "company": "Apple Inc.",
+      "market": "US",
+      "period": "Q2 CY26",
+      "reportedAt": "2026-05-01T00:00:00Z",
+      "metrics": {
+        "revenue": 94000000000,
+        "revenueLabel": "$94.0B",
+        "revenueYoYPct": 4.5,
+        "eps": 24000000000,
+        "epsYoYPct": 6.0,
+        "surprisePct": 2.1,
+        "operatingMarginPct": 30.2,
+        "profitMarginPct": 25.5
+      },
+      "brief": "Revenue $94.0B (+5% YoY), Profit $24.0B (+6% YoY), beat by 2%. Demo data.",
+      "sourceUrl": "https://example.com/demo/aapl",
+      "sourceName": "Demo Filing",
+      "nextEarningsDate": "2026-07-30T00:00:00Z",
+      "sector": "Consumer Electronics"
+    },
+    {
+      "ticker": "MSFT",
+      "company": "Microsoft Corporation",
+      "market": "US",
+      "period": "Q2 CY26",
+      "reportedAt": "2026-04-25T00:00:00Z",
+      "metrics": {
+        "revenue": 65000000000,
+        "revenueLabel": "$65.0B",
+        "revenueYoYPct": 13.0,
+        "eps": 22000000000,
+        "epsYoYPct": 15.0,
+        "surprisePct": 3.4,
+        "operatingMarginPct": 44.0,
+        "profitMarginPct": 33.8
+      },
+      "brief": "Revenue $65.0B (+13% YoY), Profit $22.0B (+15% YoY), beat by 3%. Demo data.",
+      "sourceUrl": "https://example.com/demo/msft",
+      "sourceName": "Demo Filing",
+      "nextEarningsDate": "2026-07-24T00:00:00Z",
+      "sector": "Software"
+    }
+  ]
+}

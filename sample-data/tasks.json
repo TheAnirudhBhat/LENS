@@ -1,0 +1,46 @@
+{
+  "_meta": {
+    "description": "Demo example tasks. Generic, not real action items."
+  },
+  "tasks": [
+    {
+      "id": "t-demo-1",
+      "heading": "Review INFY after Q1 print",
+      "subheading": "Thesis check on margins",
+      "text": "INFY reports soon. Re-check operating margin trend before adding to the position.",
+      "priority": "high",
+      "ticker": "INFY",
+      "asset": "equity",
+      "actionType": "review",
+      "source": "demo",
+      "done": false,
+      "createdAt": "2026-06-24"
+    },
+    {
+      "id": "t-demo-2",
+      "heading": "Deploy idle cash sleeve",
+      "subheading": "₹25,000 sitting in cash",
+      "text": "Cash is above the comfort band. Stage a deploy into the index core or a debt-equiv SDI.",
+      "priority": "med",
+      "asset": "cash",
+      "actionType": "deploy",
+      "source": "demo",
+      "done": false,
+      "createdAt": "2026-06-22"
+    },
+    {
+      "id": "t-demo-3",
+      "heading": "Trim NVDA on strength",
+      "subheading": "Up 20%, rich multiple",
+      "text": "NVDA single-name weight rising. Consider a partial trim if it breaks the concentration cap.",
+      "priority": "low",
+      "ticker": "NVDA",
+      "asset": "us-equity",
+      "actionType": "trim",
+      "source": "demo",
+      "done": true,
+      "createdAt": "2026-06-15",
+      "completedAt": "2026-06-20"
+    }
+  ]
+}

@@ -18,12 +18,17 @@ directory and your own agent fills it — see "Keeping it current" below.
 - Vitest for parser/schema tests
 - Recharts for charts; Anthropic SDK (optional) for news tagging
 
-## Run
+## Quickstart
 
 ```bash
 npm install
-npm run dev        # http://localhost:3002
+npm run demo       # http://localhost:3002 — populated with sample data
 ```
+
+`npm run demo` runs on a bundled **fake** portfolio (DEMO DATA pill, bottom-left)
+so you can see LENS working with zero setup. To run it on **your own** book, use
+`npm run setup` then `npm run dev` — the app ships empty and an agent fills it.
+Full install path, data setup, and troubleshooting are in **[SETUP.md](SETUP.md)**.
 
 Other scripts:
 

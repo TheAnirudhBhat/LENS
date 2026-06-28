@@ -3,11 +3,13 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "NODE_EXTRA_CA_CERTS=$HOME/.ssl/netskope-ca.pem next dev -p 3002",
-    "build": "NODE_EXTRA_CA_CERTS=$HOME/.ssl/netskope-ca.pem next build",
-    "start": "NODE_EXTRA_CA_CERTS=$HOME/.ssl/netskope-ca.pem next start -p 3002",
-    "lens": "NODE_EXTRA_CA_CERTS=$HOME/.ssl/netskope-ca.pem next build && NODE_EXTRA_CA_CERTS=$HOME/.ssl/netskope-ca.pem next start -p 3002",
-    "lens:dev": "NODE_EXTRA_CA_CERTS=$HOME/.ssl/netskope-ca.pem next dev -p 3002",
+    "dev": "node scripts/run-next.mjs dev -p 3002",
+    "build": "node scripts/run-next.mjs build",
+    "start": "node scripts/run-next.mjs start -p 3002",
+    "lens": "node scripts/run-next.mjs build && node scripts/run-next.mjs start -p 3002",
+    "lens:dev": "node scripts/run-next.mjs dev -p 3002",
+    "setup": "node scripts/init-data.mjs",
+    "demo": "LENS_DEMO=1 PORTFOLIO_MEMORY_DIR=./sample-data node scripts/run-next.mjs dev -p 3002",
     "test": "vitest run",
     "test:watch": "vitest"
   },

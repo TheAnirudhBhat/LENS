@@ -380,6 +380,27 @@ export default function Dashboard() {
     return () => window.removeEventListener("dashboard:open-task", onOpenTask);
   }, [setTab]);
 
+  // Demo-mode badge. `npm run demo` runs with LENS_DEMO=1 and the data dir
+  // pointed at ./sample-data; the server reports that through `isDemo` on
+  // /api/profile. We surface a small fixed pill so it's obvious the numbers are
+  // sample data, not a real portfolio. When LENS_DEMO is unset the route
+  // returns isDemo:false and nothing renders — the badge removes itself cleanly.
+  const [isDemo, setIsDemo] = useState(false);
+  useEffect(() => {
+    let alive = true;
+    fetch("/api/profile")
+      .then((r) => r.json())
+      .then((d) => {
+        if (alive) setIsDemo(!!d?.isDemo);
+      })
+      .catch(() => {
+        /* route unavailable → treat as not-demo, render nothing */
+      });
+    return () => {
+      alive = false;
+    };
+  }, []);
+
   return (
     <PerTickerCtx.Provider value={setOpenTicker}>
       <div className="min-h-screen flex">
@@ -424,6 +445,19 @@ export default function Dashboard() {
         onClose={() => setOpenTicker(null)}
       />
       <Onboarding />
+      {isDemo && (
+        <div
+          className="fixed bottom-4 left-4 z-50 mono-true text-[10.5px] font-medium px-2.5 py-1 rounded-full pointer-events-none select-none"
+          style={{
+            background: "var(--warn-tint)",
+            color: "var(--warn)",
+            border: "1px solid var(--warn)",
+          }}
+          title="Running on bundled sample data (npm run demo). These are fake holdings — point PORTFOLIO_MEMORY_DIR at your own data dir to see your portfolio."
+        >
+          DEMO DATA
+        </div>
+      )}
     </PerTickerCtx.Provider>
   );
 }

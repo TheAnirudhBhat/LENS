@@ -2,10 +2,11 @@
  * Research loader — reads research/us.json or research/mf.json from MEMORY_DIR.
  *
  * Fallback chain:
- *   1. Real file present → validate, return { entries, isDemo: false }
- *   2. ENOENT           → return { entries: [], isDemo: false }
+ *   1. Real file present → validate, return { entries, isDemo: LENS_DEMO==="1" }
+ *   2. ENOENT           → return { entries: [], isDemo: LENS_DEMO==="1" }
  *   3. Corrupt JSON     → throw loudly
  *
+ * isDemo mirrors lib/profile.ts — reflects the LENS_DEMO env flag (npm run demo).
  * Server-side only.
  */
 import { readFile } from "node:fs/promises";
@@ -33,15 +34,16 @@ export async function loadResearch(
   dir: string = RESEARCH_DIR
 ): Promise<{
   entries: z.output<(typeof SCHEMA)[Market]>[];
-  isDemo: false;
+  isDemo: boolean;
 }> {
+  const isDemo = process.env.LENS_DEMO === "1";
   const schema = z.array(SCHEMA[market]);
   const real = await readJsonOrNull(join(dir, `${market}.json`));
   if (real !== null) {
     return {
       entries: parseOrThrow(schema, real, `research/${market}.json`),
-      isDemo: false,
+      isDemo,
     };
   }
-  return { entries: [], isDemo: false };
+  return { entries: [], isDemo };
 }

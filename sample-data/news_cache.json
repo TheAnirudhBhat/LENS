@@ -1,0 +1,87 @@
+{
+  "fetchedAt": "2026-06-26T06:00:00Z",
+  "llmEnabled": false,
+  "holdingsCount": 9,
+  "articles": [
+    {
+      "id": "demo-news-1",
+      "title": "TCS lands large multi-year cloud deal with European bank",
+      "link": "https://example.com/demo/news/tcs-deal",
+      "source": "Demo Wire",
+      "publishedAt": "2026-06-25T09:30:00Z",
+      "snippet": "The IT services major signed a multi-year transformation contract, adding to its deal pipeline. Demo article — not real news.",
+      "region": "IN",
+      "tagging": {
+        "tickers": ["TCS"],
+        "direction": "+",
+        "magnitude": "med",
+        "mechanism": "Large deal win supports revenue visibility into FY27.",
+        "horizon": "quarters",
+        "confidence": "med",
+        "sector": "IT",
+        "actionability": "watch",
+        "eventType": "guidance"
+      }
+    },
+    {
+      "id": "demo-news-2",
+      "title": "Microsoft expands AI compute capacity across new regions",
+      "link": "https://example.com/demo/news/msft-capacity",
+      "source": "Demo Tech",
+      "publishedAt": "2026-06-24T14:00:00Z",
+      "snippet": "The company announced additional data-centre build-out to meet cloud demand. Demo article — not real news.",
+      "region": "US",
+      "tagging": {
+        "tickers": ["MSFT"],
+        "direction": "+",
+        "magnitude": "low",
+        "mechanism": "Capacity expansion signals sustained cloud demand.",
+        "horizon": "quarters",
+        "confidence": "med",
+        "sector": "software",
+        "actionability": "watch",
+        "eventType": "sector"
+      }
+    },
+    {
+      "id": "demo-news-3",
+      "title": "RBI holds policy rate, signals data-dependent stance",
+      "link": "https://example.com/demo/news/rbi-policy",
+      "source": "Demo Markets",
+      "publishedAt": "2026-06-23T11:15:00Z",
+      "snippet": "The central bank kept rates unchanged, citing balanced inflation and growth risks. Demo article — not real news.",
+      "region": "IN",
+      "tagging": {
+        "tickers": ["HDFCBANK"],
+        "direction": "neutral",
+        "magnitude": "low",
+        "mechanism": "Stable rates are broadly neutral for bank net interest margins.",
+        "horizon": "weeks",
+        "confidence": "med",
+        "sector": "banks",
+        "actionability": "context",
+        "eventType": "macro"
+      }
+    },
+    {
+      "id": "demo-news-4",
+      "title": "Gold steadies as markets weigh global growth signals",
+      "link": "https://example.com/demo/news/gold-steady",
+      "source": "Demo Commodities",
+      "publishedAt": "2026-06-22T08:45:00Z",
+      "snippet": "Bullion held in a tight range amid mixed macro data. Demo article — not real news.",
+      "region": "GLOBAL",
+      "tagging": {
+        "tickers": ["GOLDBEES"],
+        "direction": "neutral",
+        "magnitude": "low",
+        "mechanism": "Range-bound gold keeps the hedge sleeve stable.",
+        "horizon": "weeks",
+        "confidence": "low",
+        "sector": "commodities",
+        "actionability": "context",
+        "eventType": "macro"
+      }
+    }
+  ]
+}

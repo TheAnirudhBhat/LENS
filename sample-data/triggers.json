@@ -1,0 +1,11 @@
+{
+  "firedAt": "2026-06-26T06:00:00Z",
+  "items": [
+    {
+      "taskId": "t-demo-1",
+      "ticker": "INFY",
+      "severity": "med",
+      "mechanism": "INFY earnings date approaching — thesis check armed. Demo trigger."
+    }
+  ]
+}

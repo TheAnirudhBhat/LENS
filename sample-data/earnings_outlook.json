@@ -1,0 +1,32 @@
+{
+  "updatedAt": "2026-06-26T06:00:00Z",
+  "items": [
+    {
+      "ticker": "INFY",
+      "period": "Q1 FY27",
+      "direction": "neutral",
+      "magnitude": "med",
+      "confidence": "med",
+      "meaningForUser": "Margins are the swing factor. A beat de-risks the add; a miss keeps the position on watch. Demo outlook.",
+      "watchFor": ["Operating margin trend", "FY27 revenue guidance", "Deal TCV commentary"]
+    },
+    {
+      "ticker": "MSFT",
+      "period": "Q2 CY26",
+      "direction": "+",
+      "magnitude": "med",
+      "confidence": "high",
+      "meaningForUser": "Cloud growth durability supports the core thesis. Strong Azure print would reinforce the overweight. Demo outlook.",
+      "watchFor": ["Azure growth rate", "AI capex commentary", "Operating margin"]
+    },
+    {
+      "ticker": "RELIANCE",
+      "period": "Q1 FY27",
+      "direction": "+",
+      "magnitude": "low",
+      "confidence": "med",
+      "meaningForUser": "Retail and telecom segments steady. Limited near-term surprise expected. Demo outlook.",
+      "watchFor": ["Jio ARPU", "Retail margins", "O2C spreads"]
+    }
+  ]
+}

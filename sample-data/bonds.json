@@ -1,0 +1,53 @@
+{
+  "fetchedAt": "2026-06-26T00:00:00Z",
+  "source": "demo",
+  "platform": "Demo Bonds",
+  "demat": "DEMO0000000000",
+  "totals": {
+    "investedINR": 46000,
+    "activeInvestedINR": 46000,
+    "maturedInvestedINR": 0,
+    "interestEarnedGrossINR": 1850,
+    "interestEarnedNetINR": 1665,
+    "tdsDeductedINR": 185,
+    "activeCount": 2,
+    "maturedCount": 0,
+    "totalCount": 2
+  },
+  "positions": [
+    {
+      "isin": "INEDEMO07011",
+      "name": "Demo Finance SDI Mar'27",
+      "issuer": "Demo Finance Limited",
+      "maturityDate": "2027-03-31",
+      "status": "active",
+      "units": 25,
+      "facePerUnit": 1000,
+      "avgPricePerUnit": 1000,
+      "investedINR": 25000,
+      "faceValueINR": 25000,
+      "interestNetINR": 1100,
+      "couponFreq": "monthly",
+      "approxYieldPct": 11.0,
+      "lastPayoutDate": "2026-06-09",
+      "role": "debt-equiv"
+    },
+    {
+      "isin": "INEDEMO07029",
+      "name": "Demo Capital SDI Aug'27",
+      "issuer": "Demo Capital Limited",
+      "maturityDate": "2027-08-31",
+      "status": "active",
+      "units": 21,
+      "facePerUnit": 1000,
+      "avgPricePerUnit": 1000,
+      "investedINR": 21000,
+      "faceValueINR": 21000,
+      "interestNetINR": 565,
+      "couponFreq": "monthly",
+      "approxYieldPct": 10.5,
+      "lastPayoutDate": "2026-06-09",
+      "role": "debt-equiv"
+    }
+  ]
+}

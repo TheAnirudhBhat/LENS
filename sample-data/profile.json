@@ -1,0 +1,43 @@
+{
+  "version": 1,
+  "goals": {
+    "horizonYears": 15,
+    "currentBaseline": 1815225,
+    "ladder": [
+      { "label": "First crore", "value": 10000000, "impliedCagrPct": 12, "likelihood": "high" },
+      { "label": "Financial cushion", "value": 25000000, "impliedCagrPct": 13, "likelihood": "med" },
+      { "label": "Work-optional", "value": 50000000, "impliedCagrPct": 14, "likelihood": "low" }
+    ],
+    "notes": "Generic demo goals for a 30-year-old investor with a long horizon."
+  },
+  "allocation": {
+    "buckets": [
+      { "key": "equity", "label": "Equity", "targetPct": 85, "bandPct": 5 },
+      { "key": "debt", "label": "Debt-equivalent", "targetPct": 10, "bandPct": 3 },
+      { "key": "gold", "label": "Gold / hedges", "targetPct": 5, "bandPct": 2 },
+      { "key": "cash", "label": "Cash", "targetPct": 0, "floorPct": 1, "ceilingPct": 5 }
+    ],
+    "roleTargets": [
+      { "role": "core-compounder", "targetPct": 50 },
+      { "role": "satellite", "targetPct": 25 },
+      { "role": "hedge", "targetPct": 10 },
+      { "role": "debt-equiv", "targetPct": 15 }
+    ]
+  },
+  "limits": {
+    "singleNameCapPct": 10,
+    "usSingleNameCapPct": 12,
+    "reassessDrawdownPct": 20,
+    "trimGainPct": 50,
+    "idleCashThreshold": 100000
+  },
+  "strategy": {
+    "convictionLevel": "medium",
+    "formedBy": "user",
+    "sectorViews": [
+      { "sector": "Technology", "stance": "bullish", "confidence": 0.7, "source": "user" },
+      { "sector": "Financials", "stance": "neutral", "confidence": 0.5, "source": "user" }
+    ],
+    "lastReviewed": "2026-06-26"
+  }
+}

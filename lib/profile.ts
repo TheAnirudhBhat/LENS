@@ -84,19 +84,23 @@ async function readProfileFile(dir: string): Promise<unknown | null> {
 
 /**
  * Load the resolved profile. `dir` defaults to MEMORY_DIR (overridable for tests).
- * - real profile.json present → { profile (merged), isDemo: false }
- * - absent → { profile: null, isDemo: false }
+ * - real profile.json present → { profile (merged), isDemo: LENS_DEMO==="1" }
+ * - absent → { profile: null, isDemo: LENS_DEMO==="1" }
  * - present but invalid → throws (fail loudly).
+ *
+ * isDemo reflects the LENS_DEMO env flag (set by `npm run demo`), so the UI's
+ * DEMO badge lights up in demo mode and stays off otherwise.
  */
 export async function loadProfile(
   dir: string = MEMORY_DIR
-): Promise<{ profile: Profile | null; isDemo: false }> {
+): Promise<{ profile: Profile | null; isDemo: boolean }> {
+  const isDemo = process.env.LENS_DEMO === "1";
   const raw = await readProfileFile(dir);
   if (raw) {
     const parsed = parseOrThrow(ProfileSchema, raw, "profile.json");
-    return { profile: mergeWithDefaults(parsed), isDemo: false };
+    return { profile: mergeWithDefaults(parsed), isDemo };
   }
-  return { profile: null, isDemo: false };
+  return { profile: null, isDemo };
 }
 
 /** Effective role targets: code ROLE_TARGET with profile overrides applied. */
