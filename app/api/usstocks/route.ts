@@ -2,10 +2,68 @@ import { NextResponse } from "next/server";
 import { readFile, stat } from "node:fs/promises";
 import { US_STOCKS_FILE } from "@/lib/paths";
 import { USStocksDataSchema, parseOrThrow } from "@/lib/schemas";
+import { fetchUSQuotes, fetchUsdInr } from "@/lib/usquote";
+import type { z } from "zod";
 
 
 // Read live from disk on every request (prod `next build` would otherwise bake the file at build time).
 export const dynamic = "force-dynamic";
+
+type USData = z.output<typeof USStocksDataSchema>;
+
+/** Overlay keyless live USD prices (Yahoo/Stooq) + live FX onto the stored
+ *  positions. Units come from the file (only change on a trade). Any ticker
+ *  the quote source misses keeps its stored price. Best-effort — on total
+ *  failure the stored data is returned unchanged. */
+async function enrichWithLiveQuotes(data: USData): Promise<USData> {
+  const positions = data.positions ?? [];
+  if (positions.length === 0) return data;
+  let quotes: Map<string, number>;
+  try {
+    quotes = await fetchUSQuotes(positions.map((p) => p.ticker));
+  } catch {
+    return data;
+  }
+  if (quotes.size === 0) return data;
+  const liveFx = await fetchUsdInr().catch(() => null);
+  const fx: number = Number(liveFx ?? data.fx?.usdInr ?? 0);
+  let invTot = 0;
+  let curTot = 0;
+  const newPositions = positions.map((p) => {
+    const live = quotes.get(p.ticker.toUpperCase());
+    const invested = p.investedINR ?? 0;
+    invTot += invested;
+    if (!live || fx <= 0) {
+      curTot += p.currentINR ?? 0;
+      return p;
+    }
+    const currentINR = Math.round(live * p.quantity * fx);
+    curTot += currentINR;
+    return {
+      ...p,
+      currentPriceUSD: Number(live.toFixed(2)),
+      currentINR,
+      pnlINR: Math.round(currentINR - invested),
+      pnlPct:
+        invested > 0
+          ? Number((((currentINR - invested) / invested) * 100).toFixed(2))
+          : p.pnlPct,
+    };
+  });
+  return {
+    ...data,
+    fx: liveFx ? { ...data.fx, usdInr: Number(liveFx.toFixed(2)), asOf: "live" } : data.fx,
+    positions: newPositions,
+    totals: {
+      ...data.totals,
+      investedINR: Math.round(invTot),
+      currentINR: Math.round(curTot),
+      pnlINR: Math.round(curTot - invTot),
+      pnlPct: invTot > 0 ? Number((((curTot - invTot) / invTot) * 100).toFixed(2)) : data.totals?.pnlPct,
+    },
+  };
+}
+
 export async function GET() {
   try {
     const [content, st] = await Promise.all([
@@ -14,7 +72,8 @@ export async function GET() {
     ]);
     const raw = JSON.parse(content);
     const data = parseOrThrow(USStocksDataSchema, raw, "usstocks");
-    return NextResponse.json({ data, mtime: st.mtime.toISOString() });
+    const enriched = await enrichWithLiveQuotes(data);
+    return NextResponse.json({ data: enriched, mtime: st.mtime.toISOString() });
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : String(err);
     const isSchema = msg.startsWith("[usstocks]");
