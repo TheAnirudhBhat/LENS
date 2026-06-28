@@ -51,16 +51,23 @@ async function onePrice(ticker: string): Promise<number | null> {
   return (await yahooPrice(ticker)) ?? (await stooqPrice(ticker));
 }
 
-let quoteCache: { at: number; promise: Promise<Map<string, number>> } | null =
-  null;
+let quoteCache: {
+  key: string;
+  at: number;
+  promise: Promise<Map<string, number>>;
+} | null = null;
 
-/** Live USD prices for the given tickers, keyed by uppercase ticker. Deduped 60s. */
+/** Live USD prices for the given tickers, keyed by uppercase ticker. Deduped
+ *  60s per ticker set — a different set inside the window re-fetches rather than
+ *  returning the prior set's (stale/missing-ticker) map. */
 export async function fetchUSQuotes(
   tickers: string[]
 ): Promise<Map<string, number>> {
   const now = Date.now();
   const key = tickers.map((t) => t.toUpperCase()).sort().join(",");
-  if (quoteCache && now - quoteCache.at < TTL_MS) return quoteCache.promise;
+  if (quoteCache && quoteCache.key === key && now - quoteCache.at < TTL_MS) {
+    return quoteCache.promise;
+  }
   const promise = (async () => {
     const out = new Map<string, number>();
     await Promise.all(
@@ -74,7 +81,7 @@ export async function fetchUSQuotes(
     quoteCache = null;
     throw err;
   });
-  quoteCache = { at: now, promise };
+  quoteCache = { key, at: now, promise };
   return promise;
 }
 

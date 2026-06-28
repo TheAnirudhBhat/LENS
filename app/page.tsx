@@ -2423,9 +2423,17 @@ function MoverRow({
 
 function shortenRegime(r?: string): string {
   if (!r) return "—";
-  // Take first phrase before "→" or "(", capped at 28 chars
-  const head = r.split(/→|\(/)[0].trim();
-  return head.length > 28 ? head.slice(0, 26) + "…" : head;
+  // Hero stat wants ONE word. Map the dense regime string to a single-token
+  // label by keyword; the full string still shows in the value tooltip.
+  // Order matters: test "risk-off" before "risk-on" is moot (distinct stems),
+  // but keep risk-off/risk-on grouped for readability.
+  const lower = r.toLowerCase();
+  if (/risk-off|\bcut\b|halt/.test(lower)) return "Risk-off";
+  if (/risk-on|bull/.test(lower)) return "Risk-on";
+  if (/cautious|defensive/.test(lower)) return "Cautious";
+  if (/neutral|gate shut|range/.test(lower)) return "Neutral";
+  // Fallback: first whitespace-delimited token, stripped of trailing comma.
+  return r.trim().split(/\s+/)[0].replace(/[,.]+$/, "") || "—";
 }
 
 // Inline InfoTip / CompactStat moved to components/ui. Keep local aliases

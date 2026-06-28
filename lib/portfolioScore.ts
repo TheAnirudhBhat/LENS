@@ -135,7 +135,9 @@ const DIM_WEIGHTS: Record<DimensionKey, number> = {
 };
 
 // Cash-equivalent / true-ballast MF categories (R2). SDI/NCD bonds are NOT here.
-const BALLAST_RE = /arbitrage|liquid|overnight|money\s*market/i;
+// Exported so the API route routes the same ballast MF into the debt bucket
+// (single source of truth — the two copies must never drift).
+export const BALLAST_RE = /arbitrage|liquid|overnight|money\s*market/i;
 
 // AI / specialty cluster (R5). Growth-tech + semiconductors. Matched on role +
 // sector text so it derives from data, never a hardcoded ticker list.
@@ -300,7 +302,7 @@ export function computePortfolioScore(input: ScoreInput): ScoreResult {
   const concDetail =
     breaches.length > 0
       ? `Over cap: ${breaches.map((br) => br.label).join("; ")}.`
-      : `Top US ${topUs ? pct(usBook > 0 ? (topUs.valueINR / usBook) * 100 : 0) : "—"} (<25), top IN ${topIn ? pct(inBook > 0 ? (topIn.valueINR / inBook) * 100 : 0) : "—"} (<15), cluster ${pct(clusterPct)} (<12).`;
+      : `Top US ${topUs ? pct((topUs.valueINR / usBook) * 100) : "—"} (<25), top IN ${topIn ? pct((topIn.valueINR / inBook) * 100) : "—"} (<15), cluster ${pct(clusterPct)} (<12).`;
   const concentration: ScoreDimension = {
     key: "concentration",
     label: "Concentration",

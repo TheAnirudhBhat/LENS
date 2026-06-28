@@ -14,6 +14,7 @@ import { parseMutualFunds } from "@/lib/parsers";
 import { resolveFx } from "@/lib/fx";
 import {
   computePortfolioScore,
+  BALLAST_RE,
   type ScoreInput,
   type ScorePosition,
   type ScoreMFScheme,
@@ -24,9 +25,9 @@ export const dynamic = "force-dynamic";
 
 const MF_XRAY_FILE = path.join(MEMORY_DIR, "mf_xray.json");
 
-// Cash-equivalent MF categories — these are NOT equity (they sit in the debt /
-// ballast slot per SAA R2). Kept local + name-based so no new data is needed.
-const BALLAST_RE = /arbitrage|liquid|overnight|money\s*market/i;
+// BALLAST_RE (cash-equivalent MF categories that sit in the debt slot per SAA
+// R2 — NOT equity) is imported from lib/portfolioScore so the scorer and this
+// route share one definition and can never drift.
 
 async function readJson<T>(p: string): Promise<T | null> {
   try {

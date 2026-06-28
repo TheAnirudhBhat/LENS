@@ -141,38 +141,14 @@ function deriveInsights(
   return out.slice(0, 3);
 }
 
-// Staleness pill — replicates the chip OverviewTab previously rendered on the
-// AssetSplitStrip header, so the signal survives the swap to this card.
-function StalePill({ stale }: { stale: { source: string; ageHours: number } }) {
-  return (
-    <span
-      className="mono-true normal-case tracking-normal font-medium text-[10.5px] px-2 py-0.5 rounded-full inline-flex items-center gap-1"
-      style={{
-        background: "var(--warn-tint)",
-        color: "var(--warn)",
-        border: "1px solid var(--warn-tint)",
-      }}
-      title={`Oldest data source: ${stale.source}, ${Math.round(stale.ageHours)}h old. Run /portfolio-check to refresh.`}
-    >
-      STALE
-      <span aria-hidden="true">·</span>
-      <span>{stale.source}</span>
-      <span>{Math.round(stale.ageHours)}h</span>
-    </span>
-  );
-}
-
 export default function AllocationPie({
   mfValue,
   usValue,
-  stale,
 }: {
   /** MF book value, same source OverviewTab feeds AssetSplitStrip. */
   mfValue?: number | null;
   /** US book value in INR, same source OverviewTab feeds AssetSplitStrip. */
   usValue?: number | null;
-  /** Oldest stale source, same computation OverviewTab fed AssetSplitStrip. */
-  stale?: { source: string; ageHours: number } | null;
 }) {
   const [snapshot, setSnapshot] = useState<Snapshot>(null);
   const [allocation, setAllocation] = useState<Allocation>(null);
@@ -228,10 +204,7 @@ export default function AllocationPie({
 
   return (
     <Card>
-      <CardHeader
-        title="Asset allocation"
-        actions={stale && stale.ageHours > 24 ? <StalePill stale={stale} /> : undefined}
-      />
+      <CardHeader title="Asset allocation" />
       <div className="grid grid-cols-1 lg:grid-cols-[1.5fr_1fr]">
         {/* Donut + legend */}
         <div className="flex items-center gap-2 px-4 py-6 md:px-6 flex-wrap sm:flex-nowrap">
