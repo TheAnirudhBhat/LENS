@@ -5532,7 +5532,7 @@ function USCandidateRow({ c }: { c: USCandidate }) {
       target="_blank"
       rel="noopener noreferrer"
       title={c.thesis}
-      className="text-left relative w-[calc(100%+1.5rem)] md:w-[calc(100%+2.5rem)] grid grid-cols-[40px_1fr_100px_70px] md:grid-cols-[40px_1fr_120px_80px] -mx-3 md:-mx-5 gap-x-3 items-center py-5 px-4 md:px-6 transition-colors hover:bg-[var(--bg-subtle)] accent-ring after:content-[''] after:absolute after:bottom-0 after:left-[60px] md:after:left-[68px] after:right-4 md:after:right-6 after:h-px after:bg-[var(--border)]"
+      className="text-left relative w-[calc(100%+3rem)] md:w-[calc(100%+5rem)] grid grid-cols-[40px_1fr_100px_70px] md:grid-cols-[40px_1fr_120px_80px] -mx-6 md:-mx-10 gap-x-3 items-center py-5 px-10 md:px-16 transition-colors hover:bg-[var(--bg-subtle)] accent-ring after:content-[''] after:absolute after:bottom-0 after:left-[92px] md:after:left-[116px] after:right-10 md:after:right-16 after:h-px after:bg-[var(--border)]"
     >
       <LogoImg ticker={c.ticker} domain={getMeta(c.ticker).domain} size={36} />
       <div className="min-w-0">
@@ -5800,7 +5800,7 @@ function MFCandidateRow({ c }: { c: MFCandidate }) {
   return (
     <div
       title={c.thesis}
-      className="relative w-[calc(100%+1.5rem)] md:w-[calc(100%+2.5rem)] grid grid-cols-[40px_1fr_90px_70px] md:grid-cols-[40px_1fr_110px_80px] -mx-3 md:-mx-5 gap-x-3 items-center py-5 px-4 md:px-6 transition-colors hover:bg-[var(--bg-subtle)] after:content-[''] after:absolute after:bottom-0 after:left-[60px] md:after:left-[68px] after:right-4 md:after:right-6 after:h-px after:bg-[var(--border)]"
+      className="relative w-[calc(100%+3rem)] md:w-[calc(100%+5rem)] grid grid-cols-[40px_1fr_90px_70px] md:grid-cols-[40px_1fr_110px_80px] -mx-6 md:-mx-10 gap-x-3 items-center py-5 px-10 md:px-16 transition-colors hover:bg-[var(--bg-subtle)] after:content-[''] after:absolute after:bottom-0 after:left-[92px] md:after:left-[116px] after:right-10 md:after:right-16 after:h-px after:bg-[var(--border)]"
     >
       <AMCChip amc={c.amc} size={36} />
       <div className="min-w-0">
