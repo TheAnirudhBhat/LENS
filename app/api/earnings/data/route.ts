@@ -71,33 +71,23 @@ function isEquity(ticker: string): boolean {
   return meta.asset === "equity";
 }
 
-export async function GET(req: Request) {
-  const url = new URL(req.url);
-  const force = url.searchParams.get("refresh") === "1";
+// Dedup flag so overlapping page loads don't fire concurrent Yahoo batches.
+let refreshing = false;
 
-  const cache = await readDisk();
-  const now = Date.now();
-  const fresh =
-    cache && now - +new Date(cache.updatedAt) < TTL_MS && !force;
-
-  if (fresh && cache) {
-    return NextResponse.json({
-      updatedAt: cache.updatedAt,
-      records: cache.records,
-      cacheStatus: "cached" as const,
-    });
-  }
-
+/** Live Yahoo refresh: fetch earnings for every equity holding, merge over the
+ *  existing cache (live wins; manual-seed tickers Yahoo can't satisfy are kept),
+ *  persist to disk. Returns the merged cache, or null if the live fetch was empty
+ *  (Yahoo down / rate-limited) so the caller can fall back to the stored cache. */
+async function refreshEarnings(
+  cache: EarningsCache | null
+): Promise<EarningsCache | null> {
   // Build target list. Skip bonds, ETFs, metals.
   const [inHoldings, usTickers] = await Promise.all([
     readInHoldings(),
     readUsHoldings(),
   ]);
-  const targets: Array<{
-    ticker: string;
-    market: "IN" | "US";
-    exchange?: string;
-  }> = [];
+  const targets: Array<{ ticker: string; market: "IN" | "US"; exchange?: string }> =
+    [];
   for (const h of inHoldings) {
     if (isEquity(h.ticker))
       targets.push({ ticker: h.ticker, market: "IN", exchange: h.exchange });
@@ -112,35 +102,66 @@ export async function GET(req: Request) {
   } catch {
     records = [];
   }
+  if (records.length === 0) return null;
 
-  // If live fetch failed (Yahoo down / rate-limited), serve the most recent
-  // disk cache to keep the UI populated rather than going empty.
-  if (records.length === 0 && cache) {
+  const merged = new Map<string, EarningsRecord>();
+  if (cache) for (const r of cache.records) merged.set(r.ticker.toUpperCase(), r);
+  for (const r of records) merged.set(r.ticker.toUpperCase(), r);
+  const out: EarningsCache = {
+    updatedAt: new Date().toISOString(),
+    records: Array.from(merged.values()).sort((a, b) =>
+      (b.reportedAt || "").localeCompare(a.reportedAt || "")
+    ),
+  };
+  await writeDisk(out);
+  return out;
+}
+
+export async function GET(req: Request) {
+  const url = new URL(req.url);
+  const force = url.searchParams.get("refresh") === "1";
+
+  const cache = await readDisk();
+  const fresh = cache && Date.now() - +new Date(cache.updatedAt) < TTL_MS;
+
+  // Cache-first: serve the stored cache immediately so the Earnings tab paints
+  // fast (the live Yahoo batch is ~1s+). When the cache is stale, warm it in the
+  // background — the long-running `next start` process keeps the promise alive,
+  // so the next load gets fresh data without ever blocking the paint.
+  if (cache && !force) {
+    if (!fresh && !refreshing) {
+      refreshing = true;
+      void refreshEarnings(cache).finally(() => {
+        refreshing = false;
+      });
+    }
+    return NextResponse.json({
+      updatedAt: cache.updatedAt,
+      records: cache.records,
+      cacheStatus: fresh ? ("cached" as const) : ("stale" as const),
+    });
+  }
+
+  // No cache yet (first run) or an explicit ?refresh=1 — nothing better to show,
+  // so block on the live fetch.
+  const out = await refreshEarnings(cache);
+  if (out) {
+    return NextResponse.json({
+      updatedAt: out.updatedAt,
+      records: out.records,
+      cacheStatus: "fresh" as const,
+    });
+  }
+  if (cache) {
     return NextResponse.json({
       updatedAt: cache.updatedAt,
       records: cache.records,
       cacheStatus: "stale" as const,
     });
   }
-
-  // Merge: live records replace same-ticker disk entries, but disk entries
-  // for tickers Yahoo couldn't satisfy (manual seeds) are preserved.
-  const merged = new Map<string, EarningsRecord>();
-  if (cache) {
-    for (const r of cache.records) merged.set(r.ticker.toUpperCase(), r);
-  }
-  for (const r of records) merged.set(r.ticker.toUpperCase(), r);
-  const out: EarningsCache = {
-    updatedAt: new Date(now).toISOString(),
-    records: Array.from(merged.values()).sort((a, b) =>
-      (b.reportedAt || "").localeCompare(a.reportedAt || ""),
-    ),
-  };
-  if (records.length > 0) await writeDisk(out);
-
   return NextResponse.json({
-    updatedAt: out.updatedAt,
-    records: out.records,
-    cacheStatus: records.length > 0 ? ("fresh" as const) : ("seed" as const),
+    updatedAt: new Date().toISOString(),
+    records: [],
+    cacheStatus: "seed" as const,
   });
 }

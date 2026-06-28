@@ -3,7 +3,7 @@ import { readFile, stat } from "node:fs/promises";
 import { SNAPSHOT_FILE } from "@/lib/paths";
 import { SnapshotSchema, parseOrThrow } from "@/lib/schemas";
 import { getHoldings, readSession } from "@/lib/kite";
-import { withinMs } from "@/lib/timeoutRace";
+import { withinMs, PAINT_BUDGET_MS } from "@/lib/timeoutRace";
 import type { z } from "zod";
 
 
@@ -130,9 +130,9 @@ export async function GET() {
     ]);
     const raw = JSON.parse(content);
     const data = parseOrThrow(SnapshotSchema, raw, "snapshot");
-    // Cap the paint: live Kite enrichment if it lands in 700ms, else stored data
-    // (the fetch keeps warming the cache for the next request).
-    const enriched = await withinMs(enrichWithKite(data), 700, data);
+    // Cap the paint: live Kite enrichment if it lands in PAINT_BUDGET_MS, else
+    // stored data (the fetch keeps warming the cache for the next request).
+    const enriched = await withinMs(enrichWithKite(data), PAINT_BUDGET_MS, data);
     return NextResponse.json({ data: enriched, mtime: st.mtime.toISOString() });
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : String(err);

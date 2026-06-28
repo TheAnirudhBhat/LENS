@@ -4546,9 +4546,7 @@ function IndianResearchUnified() {
     <div className="space-y-8">
       <PageHero
         title="Indian equity research"
-        info="Sector / trend mix across every idea below — holdings, watchlist, weekly scan, and megatrend candidates combined. Click a row to filter the list."
-        headerClassName="px-4 md:px-6"
-      />
+        info="Sector / trend mix across every idea below — holdings, watchlist, weekly scan, and megatrend candidates combined. Click a row to filter the list."      />
 
       <section className="space-y-4">
         <Toolbar className="px-3 md:px-5">
@@ -5111,9 +5109,7 @@ function USResearchTab() {
     <div className="space-y-8">
       <PageHero
         title="US equity research"
-        info="Sector concentration view of your US book and a curated add-candidate list. Review before deploying USD cash."
-        headerClassName="px-4 md:px-6"
-      />
+        info="Sector concentration view of your US book and a curated add-candidate list. Review before deploying USD cash."      />
 
       <section className="space-y-4">
         <Toolbar className="px-3 md:px-5">
@@ -5648,9 +5644,7 @@ function MFResearchTab() {
     <div className="space-y-8">
       <PageHero
         title="Mutual fund research"
-        info="Curated funds to research by category, score, and conviction."
-        headerClassName="px-4 md:px-6"
-      />
+        info="Curated funds to research by category, score, and conviction."      />
 
       <section className="space-y-4">
         <Toolbar className="px-3 md:px-5">
@@ -8563,9 +8557,7 @@ function TasksTab() {
     <div className="space-y-7">
       <PageHero
         title="Tasks"
-        info="Action items surfaced from portfolio checks, watchlist scans, and journal entries."
-        headerClassName="px-4 md:px-6"
-      />
+        info="Action items surfaced from portfolio checks, watchlist scans, and journal entries."      />
       <section>
         <TasksSection />
       </section>
@@ -9498,7 +9490,7 @@ function DecisionsSection() {
             <div className="grid grid-cols-2 md:grid-cols-4 -m-px">
               <CompactStat label="Logged" value={String(items.length)} />
               <CompactStat
-                label="Reviewed"
+                label="Tracked"
                 value={`${total} / ${items.length}`}
               />
               <CompactStat

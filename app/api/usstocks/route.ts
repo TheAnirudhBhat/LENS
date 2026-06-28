@@ -4,7 +4,7 @@ import { US_STOCKS_FILE } from "@/lib/paths";
 import { USStocksDataSchema, parseOrThrow } from "@/lib/schemas";
 import { fetchUSQuotes, fetchUsdInr } from "@/lib/usquote";
 import { resolveFx } from "@/lib/fx";
-import { withinMs } from "@/lib/timeoutRace";
+import { withinMs, PAINT_BUDGET_MS } from "@/lib/timeoutRace";
 import type { z } from "zod";
 
 
@@ -83,9 +83,9 @@ export async function GET() {
     ]);
     const raw = JSON.parse(content);
     const data = parseOrThrow(USStocksDataSchema, raw, "usstocks");
-    // Cap the paint: live Yahoo/FX enrichment if it lands in 700ms, else stored
-    // data (the fetch keeps warming the cache for the next request).
-    const enriched = await withinMs(enrichWithLiveQuotes(data), 700, data);
+    // Cap the paint: live Yahoo/FX enrichment if it lands in PAINT_BUDGET_MS,
+    // else stored data (the fetch keeps warming the cache for the next request).
+    const enriched = await withinMs(enrichWithLiveQuotes(data), PAINT_BUDGET_MS, data);
     return NextResponse.json({ data: enriched, mtime: st.mtime.toISOString() });
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : String(err);

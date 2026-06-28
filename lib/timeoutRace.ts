@@ -14,6 +14,16 @@
  * or the cache is warm, and the stored values (kept fresh by the refresh cron /
  * portfolio-check) cover the cold-and-slow case.
  */
+/**
+ * Paint budget for the file-backed routes that gate the Overview's first paint
+ * (snapshot / mutual funds / US stocks). The stored files are kept fresh by the
+ * refresh cron + /portfolio-check, so we only wait this long for live enrichment
+ * before serving stored data; the live fetch keeps warming the cache for the next
+ * request. Lower = faster cold paint, marginally less chance of catching a live
+ * value on the very first hit after the cache goes cold.
+ */
+export const PAINT_BUDGET_MS = 350;
+
 export function withinMs<T>(work: Promise<T>, ms: number, fallback: T): Promise<T> {
   let timer: ReturnType<typeof setTimeout>;
   const guard = new Promise<T>((resolve) => {
