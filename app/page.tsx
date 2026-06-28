@@ -2990,7 +2990,7 @@ function HoldingsTab() {
         )}
       </PageHero>
 
-      <Toolbar className="px-3 md:px-5">
+      <Toolbar className="px-1.5">
         <ToolbarGroup>
           <Segmented<Filter>
             ariaLabel="Filter holdings"
@@ -3584,7 +3584,7 @@ function MutualFundsTab() {
         )}
       </PageHero>
 
-      <Toolbar className="px-3 md:px-5">
+      <Toolbar className="px-1.5">
         <ToolbarGroup>
           <Segmented<MFFilter>
             ariaLabel="Filter mutual funds"
@@ -4128,7 +4128,7 @@ function USStocksTab() {
         )}
       </PageHero>
 
-      <Toolbar className="px-3 md:px-5">
+      <Toolbar className="px-1.5">
         <ToolbarGroup>
           <Segmented<USSortKey>
             ariaLabel="Sort"
@@ -4549,7 +4549,7 @@ function IndianResearchUnified() {
         info="Sector / trend mix across every idea below — holdings, watchlist, weekly scan, and megatrend candidates combined. Click a row to filter the list."      />
 
       <section className="space-y-4">
-        <Toolbar className="px-3 md:px-5">
+        <Toolbar className="px-1.5">
           <ToolbarGroup>
             <div className="flex items-center gap-3 flex-wrap">
             {(() => {
@@ -5112,7 +5112,7 @@ function USResearchTab() {
         info="Sector concentration view of your US book and a curated add-candidate list. Review before deploying USD cash."      />
 
       <section className="space-y-4">
-        <Toolbar className="px-3 md:px-5">
+        <Toolbar className="px-1.5">
           <ToolbarGroup>
             <div className="flex items-center gap-3 flex-wrap">
               {(() => {
@@ -5206,7 +5206,7 @@ function USResearchTab() {
         ) : (
           <ul
             key={`${sectorFilter}-${sort}`}
-            className="list-stagger px-3 md:px-5"
+            className="list-stagger"
           >
             {filtered.map((c, i) => (
               <li key={c.ticker} style={{ ["--idx" as string]: i }}>
@@ -5647,7 +5647,7 @@ function MFResearchTab() {
         info="Curated funds to research by category, score, and conviction."      />
 
       <section className="space-y-4">
-        <Toolbar className="px-3 md:px-5">
+        <Toolbar className="px-1.5">
           <ToolbarGroup>
             <div className="flex items-center gap-3 flex-wrap">
               {(() => {
@@ -5739,7 +5739,7 @@ function MFResearchTab() {
             }
           />
         ) : (
-          <ul key={`${categoryFilter}-${sort}`} className="list-stagger px-3 md:px-5">
+          <ul key={`${categoryFilter}-${sort}`} className="list-stagger">
             {filtered.map((c, i) => (
               <li key={c.scheme} style={{ ["--idx" as string]: i }}>
                 <MFCandidateRow c={c} />
@@ -8934,7 +8934,7 @@ function TasksSection() {
 
   return (
     <div className="space-y-7">
-      <Toolbar className="px-3 md:px-5">
+      <Toolbar className="px-1.5">
         <ToolbarGroup>
           <Segmented<TaskAssetFilter>
             ariaLabel="Filter tasks by asset"
@@ -9048,7 +9048,7 @@ function TasksSection() {
       {done.length > 0 && (
         <details className="mt-2 px-1.5">
           <summary
-            className="flex items-baseline gap-2.5 px-3 md:px-5 py-3 cursor-pointer list-none
+            className="flex items-baseline gap-2.5 py-3 cursor-pointer list-none
                        text-[15px] font-semibold tracking-[-0.005em] text-tertiary hover:text-secondary transition-colors"
           >
             Done
@@ -9191,7 +9191,7 @@ function PriorityGroupHeader({
   overdue: number;
 }) {
   return (
-    <div className="flex items-baseline justify-between gap-3 px-3 md:px-5 pb-1">
+    <div className="flex items-baseline justify-between gap-3 pb-1">
       <div className="flex items-baseline gap-2.5">
         <h2 className="text-[15px] font-semibold tracking-[-0.005em] text-primary">{label}</h2>
         <span className="mono-true text-[12.5px] text-tertiary">{count}</span>
@@ -9313,7 +9313,7 @@ function TaskListRow({
  */
 function SuggestionsGroupHeader({ count }: { count: number }) {
   return (
-    <div className="flex items-baseline justify-between gap-3 px-3 md:px-5 pb-1">
+    <div className="flex items-baseline justify-between gap-3 pb-1">
       <div className="flex items-baseline gap-2.5">
         <h2 className="text-[15px] font-semibold tracking-[-0.005em] text-tertiary">Suggestions</h2>
         <span className="mono-true text-[12.5px] text-tertiary">{count}</span>
@@ -9499,7 +9499,7 @@ function DecisionsSection() {
         )}
       </div>
 
-      <Toolbar className="px-3 md:px-5">
+      <Toolbar className="px-1.5">
         <ToolbarGroup>
           <Segmented<TaskAssetFilter>
             ariaLabel="Filter decisions by asset"
