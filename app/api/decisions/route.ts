@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { MEMORY_DIR, SNAPSHOT_FILE, US_STOCKS_FILE } from "@/lib/paths";
+import { MEMORY_DIR, MUTUAL_FUNDS_FILE, SNAPSHOT_FILE, US_STOCKS_FILE } from "@/lib/paths";
+import { parseMutualFunds } from "@/lib/parsers";
 import { DecisionsFileSchema, parseOrThrow } from "@/lib/schemas";
 import { getHoldings, readSession } from "@/lib/kite";
 import { fetchAllNAVs } from "@/lib/mfapi";
@@ -54,6 +55,16 @@ async function readLivePrices(): Promise<Record<string, number>> {
     const raw = await readFile(SNAPSHOT_FILE, "utf8");
     const snap = JSON.parse(raw) as { holdings: { ticker: string; ltp: number }[] };
     for (const h of snap.holdings) map[h.ticker.toUpperCase()] = h.ltp;
+  } catch {}
+
+  // 1b. Mutual-fund NAVs from the markdown book — the stored NAV is the
+  //     baseline so an MF BUY/SELL never reads "exited" just because the live
+  //     mfapi overlay (step 4) missed the paint budget. Live NAVs still win.
+  try {
+    const md = await readFile(MUTUAL_FUNDS_FILE, "utf8");
+    for (const e of parseMutualFunds(md).entries) {
+      if (e.ticker && e.nav > 0) map[e.ticker.toUpperCase()] = e.nav;
+    }
   } catch {}
 
   // 2. US stock current prices in USD (matching how decisions log records
