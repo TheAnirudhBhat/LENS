@@ -14,6 +14,9 @@ Everything here is deterministic plumbing an LLM shouldn't be needed for:
      gate, prices only). Fields owned by /portfolio-check on that row —
      cashInjection, quarterly/annual audit flags — are left untouched.
   4. Price-trigger engine: watch_levels.json → triggers.json → the
+  5. Alert pass: alerts.json dated items + decisions due + rule-7 warnings →
+     macOS notification (once per item per day) + the same triggers.json banner.
+     (was: 4. Price-trigger engine: watch_levels.json → triggers.json → the
      Overview banner. No LLM parsing — levels are explicit config.
   5. Write auto_refresh_status.json for the dashboard's refresh popover.
 
@@ -320,7 +323,7 @@ def upsert_history(total_portfolio, snap):
 
 # ── 4. price-trigger engine (watch_levels.json → triggers.json) ─────────────
 
-def check_triggers(snap_holdings: dict, us_positions: dict) -> None:
+def check_triggers(snap_holdings: dict, us_positions: dict) -> list:
     cfg = read_file("watch_levels.json") or {"levels": []}
     fired = []
     for lv in cfg.get("levels", []):
@@ -346,8 +349,103 @@ def check_triggers(snap_holdings: dict, us_positions: dict) -> None:
                 "mechanism": f"{tkr} {price:g} crossed {op}{level:g} — {lv.get('label', 'watch level')}",
             })
             log(f"TRIGGER: {tkr} {price:g} {op} {level:g} ({lv.get('label','')})")
-    write_file("triggers.json", {"firedAt": NOW.isoformat() if fired else "", "items": fired})
-    log(f"triggers: {len(fired)} fired")
+    log(f"triggers: {len(fired)} price levels fired")
+    return fired
+
+
+# ── 5. dated alerts, rule warnings, notifications ────────────────────────────
+# "Notify me when action has to be taken" (user, 2026-09-16). Everything here
+# is deterministic and reads only data-dir files + the running LENS server:
+#   - alerts.json   dated items (IPO listings, decision deadlines, quarterly)
+#   - decisions.json pending verdicts whose review date has passed
+#   - /api/score    rule-7 warnings (a holding needs a written re-underwrite)
+#   - Kite session  expired -> IN price levels could not be checked
+# Delivery: macOS notification (osascript) + triggers.json (Overview banner).
+# Each item notifies at most once per calendar day (alerts_state.json), so the
+# 3-4 cron runs a day never nag twice about the same thing.
+
+def check_dates(snap_holdings: dict) -> list:
+    items = []
+    cfg = read_file("alerts.json") or {"dated": []}
+    for a in cfg.get("dated", []):
+        on = a.get("on", ""); until = a.get("until") or on
+        if on <= TODAY <= until:
+            items.append({"taskId": a.get("id", ""), "ticker": a.get("ticker", "DATE"),
+                          "severity": a.get("severity", "med"), "mechanism": a.get("message", "")})
+    dec = read_file("decisions.json") or {"decisions": []}
+    due = [d for d in dec.get("decisions", [])
+           if d.get("verdict") == "pending" and (d.get("reviewAt") or "9999") <= TODAY]
+    if due:
+        items.append({"taskId": "decisions-due", "ticker": "TRACKER", "severity": "med",
+                      "mechanism": f"{len(due)} decision verdict(s) past review date: "
+                                   f"{', '.join(d.get('id', '?') for d in due[:6])} — run /portfolio-check (Phase 3.2)"})
+    # Earnings printing today (holdings only) — a thesis-check moment.
+    earn = read_file("earnings_data.json") or {"records": []}
+    printing = sorted({r["ticker"] for r in earn.get("records", [])
+                       if str(r.get("nextEarningsDate") or "")[:10] == TODAY and r["ticker"] in snap_holdings})
+    if printing:
+        items.append({"taskId": "earnings-today", "ticker": ",".join(printing), "severity": "med",
+                      "mechanism": f"Earnings print today: {', '.join(printing)} — check the exitIf test after the numbers land"})
+    if not kite_session_valid():
+        items.append({"taskId": "kite-login", "ticker": "KITE", "severity": "low",
+                      "mechanism": "Kite session expired — IN price alerts paused until you log in at http://localhost:3002/api/kite/login"})
+    log(f"dated/tracker alerts: {len(items)}")
+    return items
+
+
+def check_rule_warnings() -> list:
+    try:
+        score = get_json(f"{BASE}/api/score", timeout=20) or {}
+    except Exception as exc:
+        log(f"rules: /api/score unreachable ({exc})")
+        return []
+    out = []
+    for w in score.get("warnings", []) or []:
+        if w.startswith("Rule 7"):  # only the actionable, time-boxed one; rules 4/5/9 are steady-state
+            out.append({"taskId": "rule-7", "ticker": "RULES", "severity": "high", "mechanism": w})
+    return out
+
+
+def _alert_key(item: dict) -> str:
+    return f"{item.get('taskId','')}|{item.get('ticker','')}|{item.get('mechanism','')[:60]}"
+
+
+def notify(title: str, subtitle: str, message: str) -> bool:
+    import shutil, subprocess as sp
+    if sys.platform != "darwin" or not shutil.which("osascript"):
+        return False
+    esc = lambda t: t.replace("\\", "\\\\").replace('"', '\\"')
+    script = (f'display notification "{esc(message[:200])}" with title "{esc(title)}" '
+              f'subtitle "{esc(subtitle[:60])}" sound name "Glass"')
+    try:
+        sp.run(["osascript", "-e", script], check=False, timeout=10, capture_output=True)
+        return True
+    except Exception as exc:
+        log(f"notify failed: {exc}")
+        return False
+
+
+def deliver(items: list) -> None:
+    state = read_file("alerts_state.json") or {"notified": {}}
+    notified = state.setdefault("notified", {})
+    fresh = [i for i in items if notified.get(_alert_key(i)) != TODAY]
+    sev_rank = {"high": 0, "med": 1, "low": 2}
+    fresh.sort(key=lambda i: sev_rank.get(i.get("severity", "med"), 1))
+    shown = 0
+    for i in fresh[:4]:
+        if notify("LENS", f"{i.get('severity','med').upper()} · {i.get('ticker','')}", i.get("mechanism", "")):
+            shown += 1
+        notified[_alert_key(i)] = TODAY
+    if len(fresh) > 4:
+        notify("LENS", f"+{len(fresh) - 4} more", "Open LENS → Overview banner for the full list.")
+        for i in fresh[4:]:
+            notified[_alert_key(i)] = TODAY
+    # forget keys older than 7 days so the file cannot grow without bound
+    cutoff = (NOW - timedelta(days=7)).strftime("%Y-%m-%d")
+    state["notified"] = {k: v for k, v in notified.items() if v >= cutoff}
+    state["lastRun"] = NOW.isoformat()
+    write_file("alerts_state.json", state)
+    log(f"notify: {shown} shown, {len(items) - len(fresh)} already notified today")
 
 
 # ── main ─────────────────────────────────────────────────────────────────────
@@ -377,10 +475,16 @@ def main() -> int:
             write_file("latest_snapshot.json", snap2)
         upsert_history(total, snap)
 
-    check_triggers(
-        {h["ticker"]: h for h in snap.get("holdings", [])},
+    holdings_by = {h["ticker"]: h for h in snap.get("holdings", [])}
+    fired = check_triggers(
+        holdings_by,
         {p["ticker"]: p for p in (read_file("us_stocks.json") or {}).get("positions", [])},
     )
+    fired += check_dates(holdings_by)
+    fired += check_rule_warnings()
+    write_file("triggers.json", {"firedAt": NOW.isoformat() if fired else "", "items": fired})
+    log(f"triggers: {len(fired)} total (price + dated + rules)")
+    deliver(fired)
 
     write_file("auto_refresh_status.json", {
         "lastRun": NOW.isoformat(),
