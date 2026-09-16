@@ -1,0 +1,43 @@
+{
+  "decisions": [
+    {
+      "id": "d-demo-1",
+      "date": "2026-05-20",
+      "action": "SELL",
+      "ticker": "WIPRO",
+      "qty": 50,
+      "price": 540,
+      "rationale": "Rotated out of an IT laggard into INFY for a cleaner thesis. Demo trade.",
+      "asset": "equity",
+      "verdict": "good",
+      "reviewAt": "2026-08-20",
+      "note": "Booked a small gain; freed capital redeployed."
+    },
+    {
+      "id": "d-demo-2",
+      "date": "2026-06-02",
+      "action": "BUY",
+      "ticker": "HDFCBANK",
+      "qty": 20,
+      "price": 1700,
+      "rationale": "Added to the lead private bank on a post-merger dip. Demo trade.",
+      "asset": "equity",
+      "verdict": "pending",
+      "reviewAt": "2026-09-02",
+      "note": ""
+    },
+    {
+      "id": "d-demo-3",
+      "date": "2026-06-10",
+      "action": "BUY",
+      "ticker": "MSFT",
+      "qty": 3,
+      "price": 400,
+      "rationale": "Topped up the cloud/AI compounder on a market pullback. Demo trade.",
+      "asset": "us-equity",
+      "verdict": "pending",
+      "reviewAt": "2026-09-10",
+      "note": ""
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+[
+  {
+    "scheme": "Demo Midcap Index Fund - Direct Plan - Growth",
+    "amc": "Demo Index AMC",
+    "category": "Index — Mid Cap",
+    "fiveYCagr": "21.5%",
+    "thesis": "Low-cost passive midcap exposure to fill the structural gap below the large-cap core. Demo candidate.",
+    "score": 74,
+    "confidence": "MEDIUM-HIGH"
+  },
+  {
+    "scheme": "Demo Balanced Advantage Fund - Direct Plan - Growth",
+    "amc": "Demo Hybrid AMC",
+    "category": "Hybrid — Dynamic Asset Allocation",
+    "fiveYCagr": "13.2%",
+    "thesis": "Rule-based equity/debt switching to soften drawdowns for the conservative sleeve. Demo candidate.",
+    "score": 68,
+    "confidence": "MEDIUM"
+  }
+]

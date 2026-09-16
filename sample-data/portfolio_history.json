@@ -1,0 +1,17 @@
+{
+  "_meta": {
+    "description": "Demo portfolio value history — ~10 days of a gently rising line. inValue includes bonds (per /api/history normalize). Fake."
+  },
+  "history": [
+    { "date": "2026-06-15", "totalValue": 1735000, "inValue": 500000, "bondsValue": 45200, "usValue": 800000, "mfValue": 435000, "nifty": 24550, "note": "demo" },
+    { "date": "2026-06-16", "totalValue": 1748000, "inValue": 503000, "bondsValue": 45300, "usValue": 806000, "mfValue": 439000, "nifty": 24600, "note": "demo" },
+    { "date": "2026-06-17", "totalValue": 1762000, "inValue": 506000, "bondsValue": 45400, "usValue": 813000, "mfValue": 443000, "nifty": 24680, "note": "demo" },
+    { "date": "2026-06-18", "totalValue": 1842000, "inValue": 518000, "bondsValue": 45600, "usValue": 855000, "mfValue": 469000, "nifty": 24990, "note": "demo peak" },
+    { "date": "2026-06-19", "totalValue": 1788000, "inValue": 510000, "bondsValue": 45700, "usValue": 825000, "mfValue": 453000, "nifty": 24720, "note": "demo" },
+    { "date": "2026-06-22", "totalValue": 1796000, "inValue": 512000, "bondsValue": 45800, "usValue": 828000, "mfValue": 456000, "nifty": 24770, "note": "demo" },
+    { "date": "2026-06-23", "totalValue": 1804000, "inValue": 515000, "bondsValue": 45900, "usValue": 831000, "mfValue": 458000, "nifty": 24800, "note": "demo" },
+    { "date": "2026-06-24", "totalValue": 1809000, "inValue": 517000, "bondsValue": 45950, "usValue": 832000, "mfValue": 459000, "nifty": 24820, "note": "demo" },
+    { "date": "2026-06-25", "totalValue": 1812000, "inValue": 519000, "bondsValue": 46000, "usValue": 833500, "mfValue": 459500, "nifty": 24840, "note": "demo" },
+    { "date": "2026-06-26", "totalValue": 1815225, "inValue": 520000, "bondsValue": 46000, "usValue": 835125, "mfValue": 460100, "nifty": 24850, "note": "demo latest" }
+  ]
+}

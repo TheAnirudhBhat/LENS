@@ -1,0 +1,142 @@
+{
+  "asOf": "2026-06-26",
+  "totalValue": 520000,
+  "totalPortfolioValue": 1815225,
+  "cash": 25000,
+  "equityValue": 402000,
+  "bondsValue": 46000,
+  "equityInvested": 339000,
+  "equityPnl": 63000,
+  "equityPnlPct": 18.58,
+  "regime": "Risk-on, broadening",
+  "regimeDetail": "Nifty above 50/200 DMA, breadth healthy, VIX subdued. Sample/demo regime block — not live market data.",
+  "nifty": { "value": 24850, "dayChangePct": 0.42 },
+  "vix": 12.6,
+  "peakValue": 1842000,
+  "peakDate": "2026-06-18",
+  "holdings": [
+    {
+      "ticker": "RELIANCE",
+      "qty": 40,
+      "avgPrice": 2400,
+      "ltp": 2800,
+      "value": 112000,
+      "weight": 6.17,
+      "weightInBook": 21.54,
+      "pnlPct": 16.67,
+      "dayChangePct": 0.8,
+      "market": "IN",
+      "role": "core-compounder",
+      "thesisHealth": "green",
+      "thesisNote": "Diversified large-cap anchor. Demo holding."
+    },
+    {
+      "ticker": "TCS",
+      "qty": 25,
+      "avgPrice": 3600,
+      "ltp": 4000,
+      "value": 100000,
+      "weight": 5.51,
+      "weightInBook": 19.23,
+      "pnlPct": 11.11,
+      "dayChangePct": -0.3,
+      "market": "IN",
+      "role": "core-compounder",
+      "thesisHealth": "green",
+      "thesisNote": "IT services cash machine. Demo holding."
+    },
+    {
+      "ticker": "INFY",
+      "qty": 50,
+      "avgPrice": 1500,
+      "ltp": 1700,
+      "value": 85000,
+      "weight": 4.68,
+      "weightInBook": 16.35,
+      "pnlPct": 13.33,
+      "dayChangePct": 0.1,
+      "market": "IN",
+      "role": "core-compounder",
+      "thesisHealth": "amber",
+      "thesisNote": "Margin watch into next print. Demo holding."
+    },
+    {
+      "ticker": "HDFCBANK",
+      "qty": 60,
+      "avgPrice": 1500,
+      "ltp": 1750,
+      "value": 105000,
+      "weight": 5.78,
+      "weightInBook": 20.19,
+      "pnlPct": 16.67,
+      "dayChangePct": 0.5,
+      "market": "IN",
+      "role": "core-compounder",
+      "thesisHealth": "green",
+      "thesisNote": "Lead private bank, post-merger normalising. Demo holding."
+    },
+    {
+      "ticker": "GOLDBEES",
+      "qty": 1000,
+      "avgPrice": 60,
+      "ltp": 72,
+      "value": 72000,
+      "weight": 3.97,
+      "weightInBook": 13.85,
+      "pnlPct": 20.0,
+      "dayChangePct": 0.2,
+      "market": "IN",
+      "role": "hedge",
+      "thesisHealth": "green",
+      "thesisNote": "Gold ETF hedge sleeve. Demo holding."
+    },
+    {
+      "ticker": "DEMOSDI1",
+      "qty": 25,
+      "avgPrice": 1000,
+      "ltp": 1000,
+      "value": 25000,
+      "weight": 1.38,
+      "weightInBook": 4.81,
+      "pnlPct": 0.0,
+      "dayChangePct": 0,
+      "market": "IN",
+      "role": "debt-equiv",
+      "thesisHealth": "green",
+      "thesisNote": "Securitised debt instrument, ~11% coupon. Demo holding."
+    },
+    {
+      "ticker": "DEMOSDI2",
+      "qty": 21,
+      "avgPrice": 1000,
+      "ltp": 1000,
+      "value": 21000,
+      "weight": 1.16,
+      "weightInBook": 4.04,
+      "pnlPct": 0.0,
+      "dayChangePct": 0,
+      "market": "IN",
+      "role": "debt-equiv",
+      "thesisHealth": "green",
+      "thesisNote": "Securitised debt instrument, ~10.5% coupon. Demo holding."
+    }
+  ],
+  "urgent": [
+    {
+      "level": "info",
+      "ticker": "INFY",
+      "headline": "INFY result due — thesis check on margins",
+      "action": "Review after the print before adding."
+    }
+  ],
+  "bookedGains": [
+    {
+      "date": "2026-05-20",
+      "asset": "equity",
+      "ticker": "WIPRO",
+      "action": "SELL",
+      "amount": 8500,
+      "note": "Trimmed laggard, rotated into INFY. Demo entry."
+    }
+  ]
+}

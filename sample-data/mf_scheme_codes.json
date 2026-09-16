@@ -1,0 +1,7 @@
+{
+  "_meta": {
+    "description": "Maps internal MF tickers → mfapi.in scheme codes for live NAV pricing. Empty in demo mode — the fake DEMO* funds have no real mfapi.in code, so the stored NAVs from project_mutual_funds.md are used as-is.",
+    "source": "https://www.mfapi.in/"
+  },
+  "schemes": {}
+}
